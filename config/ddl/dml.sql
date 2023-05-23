@@ -35,18 +35,6 @@ VALUES
     (2, 'Success', current_timestamp, current_timestamp),
     (3, 'Failed', current_timestamp, current_timestamp);
 
-CREATE TABLE users (
-	id INT PRIMARY KEY NOT NULL, 
-	username VARCHAR(225) NOT NULL,
-    phone_number VARCHAR(100) NOT NULL,
-	password VARCHAR(225) NOT NULL,
-    email VARCHAR(225) NOT NULL,
-    role_id int ,
-    is_verified BOOLEAN,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES user_roles(id)
-);
 
 
 INSERT INTO users (id, username,phone_number, password,email,role_id,is_verified,   created_at, updated_at)

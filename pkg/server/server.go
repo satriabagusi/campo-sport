@@ -31,14 +31,28 @@ func (s *Server) Initialize(connstr string) error {
 		return err
 	}
 
-	//initialize repo and usecase....
+	//initialize repo
 	userRepo := repository.NewUserRepository(db)
+	courtRepo := repository.NewCourtRepository(db)
+	bookingRepo := repository.NewBookingRepository(db)
+	voucherRepo := repository.NewVoucherRepository(db)
+	userDetailRepo := repository.NewUserDetailRepository(db)
+
+	//initialize usecase
 	userUsecase := usecase.NewUserUsecase(userRepo)
+	courtUsecase := usecase.NewCourtUsecase(courtRepo)
+	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
+	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo)
+	userDetailUsecase := usecase.NewUserDetailUsecase(userDetailRepo)
 
 	//setup router
 	r := gin.Default()
 	api := r.Group("/api/v1")
 	router.NewUserRouter(api, userUsecase)
+	router.NewCourtRouter(api, courtUsecase)
+	router.NewBookingRouter(api, bookingUsecase)
+	router.NewVoucherRouter(api, voucherUsecase)
+	router.NewUserDetailRouter(api, userDetailUsecase)
 
 	s.router = r
 	return nil

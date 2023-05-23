@@ -64,6 +64,8 @@ CREATE TABLE vouchers (
     updated_at TIMESTAMP NOT NULL
 );
 
+
+
 CREATE TABLE transaction_status(
     id INT PRIMARY KEY NOT NULL,
     transaction_status VARCHAR(225) NOT NULL,
@@ -104,3 +106,16 @@ ADD CONSTRAINT fk_payment_book FOREIGN KEY (payment_method_id) REFERENCES paymen
 
 ALTER TABLE user_top_ups
 ADD CONSTRAINT fk_payment_topup FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id);
+
+
+ALTER TABLE user_top_ups
+ADD COLUMN 
+order_number VARCHAR(255) ,
+amount float,
+transaction_status_id int;
+
+
+ALTER TABLE user_top_ups
+ADD CONSTRAINT fk_status_top_up
+FOREIGN KEY (transaction_status_id)
+REFERENCES transaction_status (id);

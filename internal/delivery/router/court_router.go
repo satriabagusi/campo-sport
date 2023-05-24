@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/delivery/handler"
-	"github.com/satriabagusi/campo-sport/internal/delivery/middleware"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 )
 
@@ -15,12 +14,12 @@ type CourtRouter struct {
 func (u *CourtRouter) SetupRouter() {
 	courts := u.publicRoute.Group("/courts")
 	{
-		courts.Use(middleware.Authentication())
-		courts.POST("/", u.courHandler.GetAllCourts)
-		courts.PUT("/:id", u.courHandler.GetAllCourts)
-		courts.DELETE("/:id", u.courHandler.GetAllCourts)
-		courts.GET("/:id", u.courHandler.GetAllCourts)
-		courts.GET("/court", u.courHandler.GetAllCourts)
+		//courts.Use(middleware.Authentication())
+		courts.POST("/", u.courHandler.InsertCourt)
+		courts.PUT("/:id", u.courHandler.UpdateCourt)
+		courts.DELETE("/:id", u.courHandler.DeleteCourt)
+		courts.GET("/:id", u.courHandler.FindCourtByID)
+		courts.GET("/court", u.courHandler.FindCourtByCourtName)
 		courts.GET("/", u.courHandler.GetAllCourts)
 	}
 

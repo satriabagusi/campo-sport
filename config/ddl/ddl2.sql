@@ -125,6 +125,13 @@ ADD CONSTRAINT fk_status_top_up
 FOREIGN KEY (transaction_status_id)
 REFERENCES transaction_status (id);
 
+
+-- Create the sequence
+CREATE SEQUENCE court_id_seq;
+-- Associate the sequence with the id column in the users table
+ALTER TABLE courts ALTER COLUMN id SET DEFAULT nextval('court_id_seq'::regclass);
+
+
 -- Create the sequence
 CREATE SEQUENCE users_id_seq;
 -- Associate the sequence with the id column in the users table
@@ -145,3 +152,11 @@ ALTER COLUMN created_at SET DEFAULT current_timestamp;
 
 ALTER TABLE vouchers
 ALTER COLUMN updated_at SET DEFAULT current_timestamp;
+
+
+ALTER TABLE courts
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE courts
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;
+

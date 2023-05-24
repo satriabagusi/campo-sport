@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 )
 
@@ -33,12 +33,7 @@ func (h *voucherHandler) InsertVoucher(c *gin.Context) {
 		return
 	}
 
-	voucherInDb, err := h.voucherUsecase.FindVoucherByVoucher(voucher.VoucherCode)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
+	voucherInDb, _ := h.voucherUsecase.FindVoucherByVoucher(voucher.VoucherCode)
 	if voucherInDb != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "voucher already exists"})
 		return
@@ -50,8 +45,15 @@ func (h *voucherHandler) InsertVoucher(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": result})
+	webResponse := res.WebResponse{
+		Code:   201,
+		Status: "OK",
+		Data:   result,
+	}
+
+	c.JSON(http.StatusCreated, webResponse)
 }
+
 func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 	idParam := c.Param("id")
 
@@ -68,7 +70,6 @@ func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 	}
 
 	var updatedVoucher entity.Voucher
-
 	if err := c.ShouldBindJSON(&updatedVoucher); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -79,7 +80,13 @@ func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	webResponse := res.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   result,
+	}
+
+	c.JSON(http.StatusOK, webResponse)
 
 }
 func (h *voucherHandler) DeleteVoucher(c *gin.Context) {
@@ -103,9 +110,13 @@ func (h *voucherHandler) DeleteVoucher(c *gin.Context) {
 		return
 	}
 
-	msg := fmt.Sprintf("voucher with id %d has been deleted", id)
+	webResponse := res.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   "voucher has been deleted",
+	}
 
-	c.JSON(http.StatusOK, gin.H{"message": msg})
+	c.JSON(http.StatusOK, webResponse)
 
 }
 func (h *voucherHandler) FindVoucherByID(c *gin.Context) {
@@ -123,7 +134,13 @@ func (h *voucherHandler) FindVoucherByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	webResponse := res.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   result,
+	}
+
+	c.JSON(http.StatusOK, webResponse)
 
 }
 func (h *voucherHandler) FindVoucherByVoucherCode(c *gin.Context) {
@@ -134,8 +151,12 @@ func (h *voucherHandler) FindVoucherByVoucherCode(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	webResponse := res.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   result,
+	}
+	c.JSON(http.StatusOK, webResponse)
 }
 
 func (h *voucherHandler) GetAllVoucher(c *gin.Context) {
@@ -144,6 +165,11 @@ func (h *voucherHandler) GetAllVoucher(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	webResponse := res.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   result,
+	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, webResponse)
 }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
 )
@@ -40,6 +39,7 @@ func (r *voucherRepository) InsertVoucher(voucher *entity.Voucher) (*entity.Vouc
 	return voucher, nil
 }
 func (r *voucherRepository) UpdateVoucher(voucher *entity.Voucher) (*entity.Voucher, error) {
+
 	stmt, err := r.db.Prepare("UPDATE vouchers SET voucher_code = $1, is_available = $2, discount =$3 WHERE id = $4")
 	if err != nil {
 		return nil, err
@@ -48,7 +48,6 @@ func (r *voucherRepository) UpdateVoucher(voucher *entity.Voucher) (*entity.Vouc
 
 	_, err = stmt.Exec(voucher.VoucherCode, voucher.IsAvailable, voucher.Discount, voucher.Id)
 	if err != nil {
-		log.Println(voucher)
 		return nil, err
 	}
 	return voucher, nil

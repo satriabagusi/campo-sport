@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
@@ -35,12 +34,8 @@ func (r *userRepository) InsertUser(user *req.User) (*res.User, error) {
 
 	err = stmt.QueryRow(user.Username, user.PhoneNumber, user.Password, user.Email, user.CreatedAt, user.UpdatedAt).Scan(&user.Id)
 	if err != nil {
-		log.Println(user, user.Id)
-		log.Println("Failed to insert user:", err)
 		return nil, err
 	}
-
-	log.Println("User inserted with ID:", user.Id)
 
 	userRes := &res.User{
 		Username:    user.Username,

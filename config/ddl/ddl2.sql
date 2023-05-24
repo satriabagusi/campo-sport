@@ -127,12 +127,21 @@ REFERENCES transaction_status (id);
 
 -- Create the sequence
 CREATE SEQUENCE users_id_seq;
-
 -- Associate the sequence with the id column in the users table
 ALTER TABLE users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 -- Create the sequence
 CREATE SEQUENCE user_detail_id_seq;
-
 -- Associate the sequence with the id column in the users table
 ALTER TABLE user_details ALTER COLUMN id SET DEFAULT nextval('user_detail_id_seq'::regclass);
+
+-- Create the sequence
+CREATE SEQUENCE voucher_id_seq;
+-- Associate the sequence with the id column in the users table
+ALTER TABLE vouchers ALTER COLUMN id SET DEFAULT nextval('voucher_id_seq'::regclass);
+
+ALTER TABLE vouchers
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE vouchers
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;

@@ -14,12 +14,12 @@ type VoucherRouter struct {
 func (v *VoucherRouter) SetupRouter() {
 	voucher := v.publicRoute.Group("/voucher")
 	{
-		//courts.Use(middleware.Authentication())
-		voucher.POST("/", v.voucherHandler.GetAllVoucher)
-		voucher.PUT("/:id", v.voucherHandler.GetAllVoucher)
-		voucher.DELETE("/:id", v.voucherHandler.GetAllVoucher)
-		voucher.GET("/:id", v.voucherHandler.GetAllVoucher)
-		voucher.GET("/voucher", v.voucherHandler.GetAllVoucher)
+		//voucher.Use(middleware.Authentication())
+		voucher.POST("/", v.voucherHandler.InsertVoucher)
+		voucher.PUT("/:id", v.voucherHandler.UpdateVoucher)
+		voucher.DELETE("/:id", v.voucherHandler.DeleteVoucher)
+		voucher.GET("/:id", v.voucherHandler.FindVoucherByID)
+		voucher.GET("/voucher", v.voucherHandler.FindVoucherByVoucherCode)
 		voucher.GET("/", v.voucherHandler.GetAllVoucher)
 	}
 

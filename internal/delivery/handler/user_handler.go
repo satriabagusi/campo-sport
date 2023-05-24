@@ -8,11 +8,13 @@ import (
 	jwt "github.com/eulbyvan/auth-go"
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
 
 type UserHandler interface {
+	InsertUser(*gin.Context)
 	FindUserByUsername(*gin.Context)
 	Login(*gin.Context)
 }
@@ -23,6 +25,35 @@ type userHandler struct {
 
 func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 	return &userHandler{userUsecase}
+}
+
+func (u *userHandler) InsertUser(c *gin.Context) {
+	var user req.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// userInDb, err := u.userUsecase.FindUserByUsername(user.Username)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
+	// if userInDb != nil {
+	// 	c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
+	// 	return
+	// }
+
+	user.Password = utility.Encrypt(user.Password)
+
+	result, err := u.userUsecase.InsertUser(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"data": result})
 }
 
 func (u *userHandler) FindUserByUsername(c *gin.Context) {

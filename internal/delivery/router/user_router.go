@@ -14,6 +14,7 @@ type UserRouter struct {
 
 func (u *UserRouter) SetupRouter() {
 	u.publicRoute.POST("/login/user", u.userHandler.Login)
+	u.publicRoute.POST("/register", u.userHandler.InsertUser)
 
 	users := u.publicRoute.Group("/users")
 	{

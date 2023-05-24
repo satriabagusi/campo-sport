@@ -39,7 +39,7 @@ func (s *Server) Initialize(connstr string) error {
 	userDetailRepo := repository.NewUserDetailRepository(db)
 
 	//initialize usecase
-	userUsecase := usecase.NewUserUsecase(userRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo,userDetailRepo)
 	courtUsecase := usecase.NewCourtUsecase(courtRepo)
 	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
 	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo)

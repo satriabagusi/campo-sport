@@ -31,11 +31,22 @@ func (s *Server) Initialize(connstr string) error {
 		return err
 	}
 
-	//initialize repo and usecase....
+	//initialize repo
 	userRepo := repository.NewUserRepository(db)
 	userTopUpRepo := repository.NewUserTopUpRepository(db)
 
-	userUsecase := usecase.NewUserUsecase(userRepo)
+	courtRepo := repository.NewCourtRepository(db)
+	bookingRepo := repository.NewBookingRepository(db)
+	voucherRepo := repository.NewVoucherRepository(db)
+	userDetailRepo := repository.NewUserDetailRepository(db)
+
+	//initialize usecase
+	userUsecase := usecase.NewUserUsecase(userRepo, userDetailRepo)
+	courtUsecase := usecase.NewCourtUsecase(courtRepo)
+	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
+	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo)
+	userDetailUsecase := usecase.NewUserDetailUsecase(userDetailRepo)
+
 	userTopUpUsecase := usecase.NewUserTopUpUsecase(userTopUpRepo)
 
 	//setup router
@@ -43,6 +54,10 @@ func (s *Server) Initialize(connstr string) error {
 	api := r.Group("/api/v1")
 	router.NewUserRouter(api, userUsecase)
 	router.NewUserTopUpRouter(api, userTopUpUsecase)
+	router.NewCourtRouter(api, courtUsecase)
+	router.NewBookingRouter(api, bookingUsecase)
+	router.NewVoucherRouter(api, voucherUsecase)
+	router.NewUserDetailRouter(api, userDetailUsecase)
 
 	s.router = r
 	return nil

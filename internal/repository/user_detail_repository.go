@@ -1,20 +1,16 @@
-/*
-Author: Satria Bagus(satria.bagus18@gmail.com)
-user_detail_repository.go (c) 2023
-Desc: description
-Created:  2023-05-23T08:19:51.790Z
-Modified: !date!
-*/
 package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 )
 
 type UserDetailRepository interface {
-	UpdateBalance(updatedUserDetail *entity.UserDetail) (*entity.UserDetail, error)
+	CreateUserDetail(*req.UserDetail) error
+	GetAllUserDetail() ([]entity.UserDetail, error)
 }
 
 type userDetailRepository struct {
@@ -24,21 +20,21 @@ type userDetailRepository struct {
 func NewUserDetailRepository(db *sql.DB) UserDetailRepository {
 	return &userDetailRepository{db}
 }
+func (r *userDetailRepository) CreateUserDetail(userDetail *req.UserDetail) error {
+	//Query returning id
+	query := `INSERT INTO user_details (user_id, balance)
+			VALUES ($1,$2) RETURNING id;`
 
-func (r *userDetailRepository) UpdateBalance(updatedUserDetail *entity.UserDetail) (*entity.UserDetail, error) {
+	err := r.db.QueryRow(query, userDetail.UserId, userDetail.Balance).Scan(&userDetail.Id)
 
-
-
-	stmt, err := r.db.Prepare(`UPDATE user_details SET balance = $1 WHERE user_id = $2`)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("failed to create user %w", err)
 	}
-	defer stmt.Close()
+	return nil
 
-	_, err = stmt.Exec(updatedUserDetail.Balance, updatedUserDetail.User.Id)
-	if err != nil {
-		return nil, err
-	}
+}
+func (r *userDetailRepository) GetAllUserDetail() ([]entity.UserDetail, error) {
+	var userDetail []entity.UserDetail
 
-	return updatedUserDetail, nil
+	return userDetail, nil
 }

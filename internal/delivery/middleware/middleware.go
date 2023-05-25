@@ -12,7 +12,7 @@ import (
 
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.Method == "POST" && (c.Request.URL.Path == "/auth/login/" || c.Request.URL.Path == "/api/v1/users/") {
+		if c.Request.Method == "POST" && (c.Request.URL.Path == "/auth/login/" || c.Request.URL.Path == "/api/v1/users/register") {
 			c.Next()
 			return
 		}

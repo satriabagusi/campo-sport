@@ -13,10 +13,12 @@ import "time"
 type Booking struct {
 	Id                int               `json:"id"`
 	BookingNumber     string            `json:"booking_number"`
+	User              User              `json:"user"`
 	Court             Court             `json:"court_detail"`
 	PaymentMethod     PaymentMethod     `json:"payment_method"`
 	Voucher           Voucher           `json:"voucher_detail"`
 	TransactionStatus TransactionStatus `json:"transaction_status"`
+	TotalTransaction  float32           `json:"total_transaction"`
 	CreatedAt         time.Time         `json:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at"`
 }

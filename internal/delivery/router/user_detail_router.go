@@ -17,14 +17,14 @@ func (u *UserDetailRouter) SetupRouter() {
 	{
 		userDetail.Use(middleware.Authentication())
 		userDetail.POST("/", u.userDetailHandler.GetAllUserDetail)
-		userDetail.PUT("/:id", u.userDetailHandler.GetAllUserDetail)
+		userDetail.PUT("/upload/", u.userDetailHandler.UploadCredential)
 		userDetail.GET("/court", u.userDetailHandler.GetAllUserDetail)
 	}
 
 }
 
-func NewUserDetailRouter(publicRoute *gin.RouterGroup, userDetailUsecase usecase.UserDetailUsecase) {
-	userDetailHandler := handler.NewUserDetailHandler(userDetailUsecase)
+func NewUserDetailRouter(publicRoute *gin.RouterGroup, userDetailUsecase usecase.UserDetailUsecase, userUsecase usecase.UserUsecase) {
+	userDetailHandler := handler.NewUserDetailHandler(userDetailUsecase, userUsecase)
 	rt := UserDetailRouter{
 		userDetailHandler,
 		publicRoute,

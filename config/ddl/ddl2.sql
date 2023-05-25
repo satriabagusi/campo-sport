@@ -153,6 +153,17 @@ ALTER COLUMN created_at SET DEFAULT current_timestamp;
 ALTER TABLE vouchers
 ALTER COLUMN updated_at SET DEFAULT current_timestamp;
 
+ALTER TABLE vouchers
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE vouchers
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;
+
+ALTER TABLE user_details
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE user_details
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;
 
 ALTER TABLE courts
 ALTER COLUMN created_at SET DEFAULT current_timestamp;
@@ -160,3 +171,21 @@ ALTER COLUMN created_at SET DEFAULT current_timestamp;
 ALTER TABLE courts
 ALTER COLUMN updated_at SET DEFAULT current_timestamp;
 
+
+ALTER TABLE vouchers
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE vouchers
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;
+
+
+-- Create the sequence
+CREATE SEQUENCE topup_id_seq;
+ALTER TABLE user_top_ups ALTER COLUMN id SET DEFAULT nextval('topup_id_seq'::regclass);
+
+
+ALTER TABLE user_details
+ALTER COLUMN created_at SET DEFAULT current_timestamp;
+
+ALTER TABLE user_details
+ALTER COLUMN updated_at SET DEFAULT current_timestamp;

@@ -39,7 +39,7 @@ func (s *Server) Initialize(connstr string) error {
 	userDetailRepo := repository.NewUserDetailRepository(db)
 
 	//initialize usecase
-	userUsecase := usecase.NewUserUsecase(userRepo,userDetailRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo, userDetailRepo)
 	courtUsecase := usecase.NewCourtUsecase(courtRepo)
 	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
 	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo)
@@ -52,7 +52,7 @@ func (s *Server) Initialize(connstr string) error {
 	router.NewCourtRouter(api, courtUsecase)
 	router.NewBookingRouter(api, bookingUsecase)
 	router.NewVoucherRouter(api, voucherUsecase)
-	router.NewUserDetailRouter(api, userDetailUsecase)
+	router.NewUserDetailRouter(api, userDetailUsecase, userUsecase)
 
 	s.router = r
 	return nil

@@ -19,12 +19,14 @@ func (u *UserRouter) SetupRouter() {
 	users := u.publicRoute.Group("/users")
 	{
 		users.Use(middleware.Authentication())
-		users.POST("/", u.userHandler.Login)
-		users.PUT("/:id", u.userHandler.Login)
-		users.DELETE("/:id", u.userHandler.Login)
-		users.GET("/:id", u.userHandler.Login)
-		users.GET("/user", u.userHandler.FindUserByUsername)
-		users.GET("/", u.userHandler.Login)
+		users.POST("/", u.userHandler.InsertUser)
+		users.PUT("/updatests", u.userHandler.UpdateUser)
+		users.PUT("/updatepw", u.userHandler.UpdatePassword)
+		users.DELETE("/:id", u.userHandler.DeleteUser)
+		users.GET("/:id", u.userHandler.FindUserById)
+		users.GET("/email", u.userHandler.FindUserByEmail)
+		users.GET("/username", u.userHandler.FindUserByUsername)
+		users.GET("/", u.userHandler.GetAllVoucher)
 	}
 
 }

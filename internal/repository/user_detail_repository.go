@@ -6,9 +6,11 @@ import (
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 )
 
 type UserDetailRepository interface {
+	UploadCretential(photo *res.UserProfile) (*res.UserProfile, error)
 	CreateUserDetail(*req.UserDetail) error
 	GetAllUserDetail() ([]entity.UserDetail, error)
 }
@@ -33,6 +35,22 @@ func (r *userDetailRepository) CreateUserDetail(userDetail *req.UserDetail) erro
 	return nil
 
 }
+
+func (r *userDetailRepository) UploadCretential(userCredential *res.UserProfile) (*res.UserProfile, error) {
+	stmt, err := r.db.Prepare("UPDATE user_details SET credential_proof = $1 WHERE user_id = $2")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userCredential.Url, userCredential.User_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return userCredential, nil
+}
+
 func (r *userDetailRepository) GetAllUserDetail() ([]entity.UserDetail, error) {
 	var userDetail []entity.UserDetail
 

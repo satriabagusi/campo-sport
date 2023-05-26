@@ -19,3 +19,7 @@ func RandomString(n int) string {
 	}
 	return sb.String()
 }
+
+func RandomOwner() string {
+	return RandomString(6)
+}

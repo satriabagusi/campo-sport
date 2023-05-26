@@ -15,9 +15,10 @@ func (b *BookingRouter) SetupRouter() {
 	courts := b.publicRoute.Group("/booking")
 	{
 		//courts.Use(middleware.Authentication())
-		courts.POST("/", b.bookingHandler.GetAllBooking)
-		courts.PUT("/:id", b.bookingHandler.GetAllBooking)
-		courts.GET("/:id", b.bookingHandler.GetAllBooking)
+		courts.POST("/", b.bookingHandler.CreateBooking)
+		courts.PUT("/update", b.bookingHandler.UpdateBookingPaymentStatus)
+		courts.PATCH("/cancel", b.bookingHandler.CancelBooking)
+		courts.GET("/detail", b.bookingHandler.GetBookingByOrderNumber)
 		courts.GET("/court", b.bookingHandler.GetAllBooking)
 		courts.GET("/", b.bookingHandler.GetAllBooking)
 	}

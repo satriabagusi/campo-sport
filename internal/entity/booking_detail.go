@@ -12,7 +12,7 @@ import "time"
 
 type BookingDetail struct {
 	Id        int       `json:"id"`
-	Booking   Booking   `json:"booking"`
+	BookingId int       `json:"booking_id"`
 	StartTime time.Time `json:"start_time"`
 	DateBook  time.Time `json:"date_book"`
 	EndTime   time.Time `json:"end_time"`

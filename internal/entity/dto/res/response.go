@@ -28,23 +28,25 @@ type GetAllUser struct {
 }
 
 type GetUserByID struct {
-	Id          int    `json:"id"`
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phone_number"`
-	IsVerified  string `json:"is_verified"`
-	UserRole    string `json:"user_role"`
+	Id              int    `json:"id"`
+	Username        string `json:"username"`
+	Email           string `json:"email"`
+	PhoneNumber     string `json:"phone_number"`
+	CredentialProof string `json:"credential_proof"`
+	IsVerified      string `json:"is_verified"`
+	UserRole        string `json:"user_role"`
 }
 type GetUserByUsername struct {
 	Id       int    `json:"id"`
 	Username string `json:"username"`
 	//Password    string    `json:"password"`
-	Password    string    `json:"password"`
-	Email       string    `json:"email"`
-	PhoneNumber string    `json:"phone_number"`
-	IsVerified  string    `json:"is_verified"`
-	UserRole    string    `json:"user_role"`
-	CreatedAt   time.Time `json:"create_at"`
+	Password        string    `json:"password"`
+	Email           string    `json:"email"`
+	PhoneNumber     string    `json:"phone_number"`
+	CredentialProof string    `json:"credential_proof"`
+	IsVerified      string    `json:"is_verified"`
+	UserRole        string    `json:"user_role"`
+	CreatedAt       time.Time `json:"create_at"`
 }
 
 type Court struct {

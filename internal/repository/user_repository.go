@@ -51,34 +51,23 @@ func (r *userRepository) InsertUser(user *req.User) (*res.User, error) {
 
 func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUsername, error) {
 	var user res.GetUserByUsername
-	stmt, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified, u.created_at
-	FROM users as u JOIN user_roles as r ON u.role_id = r.id WHERE u.username =$1;`)
+	stmt, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email, ud.credential_proof, r.role_name, u.is_verified, u.created_at
+	FROM users AS u
+	JOIN user_roles AS r ON u.role_id = r.id
+	JOIN user_details AS ud ON ud.user_id = u.id
+	WHERE u.username = $1 AND u.is_deleted = false;`)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRow(username)
-	err = row.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.UserRole, &user.IsVerified, &user.CreatedAt)
+	err = row.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.CredentialProof, &user.UserRole, &user.IsVerified, &user.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
-
-// func (r *userRepository) UpdateUser(updatedUser *req.UpdatedUser) (*req.UpdatedUser, error) {
-// 	stmt, err := r.db.Prepare("UPDATE users SET username = $1, phone_number = $2, password =$3, email = $4, role_id = $5, is_verified = $6 WHERE id = $7")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer stmt.Close()
-
-// 	_, err = stmt.Exec(updatedUser.Username, updatedUser.PhoneNumber, updatedUser.Password, updatedUser.Email, updatedUser.UserRole, updatedUser.IsVerified, updatedUser.Id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return updatedUser, nil
-// }
 
 func (r *userRepository) DeleteUser(user *entity.User) error {
 	stmt, err := r.db.Prepare("UPDATE users set is_deleted = true id = $1")

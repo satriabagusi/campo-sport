@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
@@ -56,7 +55,6 @@ func (r *courtRepository) UpdateCourt(updatedCourt *entity.Court) (*res.Court, e
 		return nil, err
 	}
 	defer stmt.Close()
-	log.Println("id xourt,", updatedCourt.Id)
 
 	_, err = stmt.Exec(updatedCourt.CourtName, updatedCourt.Description, updatedCourt.CourtPrice, updatedCourt.IsAvailable, updatedCourt.Id)
 	if err != nil {
@@ -89,14 +87,14 @@ func (r *courtRepository) DeleteCourt(courts *entity.Court) error {
 
 func (r *courtRepository) FindCourtById(id int) (*res.Court, error) {
 	var court res.Court
-	stmtm, err := r.db.Prepare("SELECT court_name, description, court_price, is_available FROM courts WHERE id = $1")
+	stmtm, err := r.db.Prepare("SELECT id, court_name, description, court_price, is_available FROM courts WHERE id = $1")
 	if err != nil {
 		return nil, err
 	}
 
 	defer stmtm.Close()
 	row := stmtm.QueryRow(id)
-	err = row.Scan(&court.CourtName, &court.Description, &court.CourtPrice, &court.IsAvailable)
+	err = row.Scan(&court.Id, &court.CourtName, &court.Description, &court.CourtPrice, &court.IsAvailable)
 	if err != nil {
 		return nil, err
 	}
@@ -105,14 +103,14 @@ func (r *courtRepository) FindCourtById(id int) (*res.Court, error) {
 
 func (r *courtRepository) FindCourtByCourt(courtName string) (*res.Court, error) {
 	var court res.Court
-	stmt, err := r.db.Prepare("SELECT court_name, description, court_price, is_available FROM courts WHERE court_name = $1")
+	stmt, err := r.db.Prepare("SELECT id, court_name, description, court_price, is_available FROM courts WHERE court_name = $1")
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRow(courtName)
-	err = row.Scan(&court.CourtName, &court.Description, &court.CourtPrice, &court.IsAvailable)
+	err = row.Scan(&court.Id, &court.CourtName, &court.Description, &court.CourtPrice, &court.IsAvailable)
 	if err != nil {
 		return nil, err
 	}

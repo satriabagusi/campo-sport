@@ -5,14 +5,13 @@ import (
 )
 
 type UserHandler interface {
-	UpdateUser(*gin.Context)
-	DeleteUser(*gin.Context)
-	FindUserById(*gin.Context)
-	FindUserByEmail(*gin.Context)
-	GetAllVoucher(*gin.Context)
 	InsertUser(*gin.Context)
+	FindUserById(*gin.Context)
 	FindUserByUsername(*gin.Context)
-	Login(*gin.Context)
-
+	FindUserByEmail(*gin.Context)
+	GetAllUsers(*gin.Context)
+	UpdateUser(*gin.Context)
 	UpdatePassword(*gin.Context)
+	DeleteUser(*gin.Context)
+	Login(*gin.Context)
 }

@@ -32,6 +32,14 @@ type UpdatedStatusUser struct {
 	IsVerified bool `json:"is_verified"`
 }
 
+type UpdateVoucher struct {
+	Id          int       `json:"id"`
+	VoucherCode string    `json:"voucher_code"`
+	IsAvailable bool      `json:"is_available"`
+	Discount    float32   `json:"discount"`
+}
+
+
 type UserDetail struct {
 	Id              int     `json:"id"`
 	UserId          int     `json:"user_id"`

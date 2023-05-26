@@ -2,12 +2,13 @@ package usecase
 
 import (
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/repository"
 )
 
 type VoucherUsecase interface {
 	InsertVoucher(*entity.Voucher) (*entity.Voucher, error)
-	UpdateVoucher(*entity.Voucher) (*entity.Voucher, error)
+	UpdateVoucher(*req.UpdateVoucher) (*req.UpdateVoucher, error)
 	DeleteVoucher(*entity.Voucher) error
 	FindVoucherById(int) (*entity.Voucher, error)
 	FindVoucherByVoucher(string) (*entity.Voucher, error)
@@ -25,7 +26,7 @@ func NewVoucherUsecase(voucherRepository repository.VoucherRepository) VoucherUs
 func (u *voucherUsecase) InsertVoucher(voucher *entity.Voucher) (*entity.Voucher, error) {
 	return u.voucherRepository.InsertVoucher(voucher)
 }
-func (u *voucherUsecase) UpdateVoucher(voucher *entity.Voucher) (*entity.Voucher, error) {
+func (u *voucherUsecase) UpdateVoucher(voucher *req.UpdateVoucher) (*req.UpdateVoucher, error) {
 	return u.voucherRepository.UpdateVoucher(voucher)
 }
 func (u *voucherUsecase) DeleteVoucher(user *entity.Voucher) error {

@@ -16,10 +16,10 @@ func (v *VoucherRouter) SetupRouter() {
 	{
 		//voucher.Use(middleware.Authentication())
 		voucher.POST("/", v.voucherHandler.InsertVoucher)
-		voucher.PUT("/:id", v.voucherHandler.UpdateVoucher)
+		voucher.PUT("/", v.voucherHandler.UpdateVoucher)
 		voucher.DELETE("/:id", v.voucherHandler.DeleteVoucher)
 		voucher.GET("/:id", v.voucherHandler.FindVoucherByID)
-		voucher.GET("/voucher", v.voucherHandler.FindVoucherByVoucherCode)
+		voucher.GET("/search/", v.voucherHandler.FindVoucherByVoucherCode)
 		voucher.GET("/", v.voucherHandler.GetAllVoucher)
 	}
 

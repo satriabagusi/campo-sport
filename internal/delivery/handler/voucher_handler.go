@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 )
@@ -55,35 +56,31 @@ func (h *voucherHandler) InsertVoucher(c *gin.Context) {
 }
 
 func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
-	idParam := c.Param("id")
+	var updateVoucher req.UpdateVoucher
+	id := c.Query("id")
+	idInt, _ := strconv.Atoi(id)
+	updateVoucher.Id = idInt
 
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	userInDb, _ := h.voucherUsecase.FindVoucherById(idInt)
+	if userInDb == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Voucher not found"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&updateVoucher); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	_, err = h.voucherUsecase.FindVoucherById(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "voucher not found"})
-		return
-	}
-
-	var updatedVoucher entity.Voucher
-	if err := c.ShouldBindJSON(&updatedVoucher); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	result, err := h.voucherUsecase.UpdateVoucher(&updatedVoucher)
+	_, err := h.voucherUsecase.UpdateVoucher(&updateVoucher)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
 		return
 	}
 
 	webResponse := res.WebResponse{
-		Code:   200,
+		Code:   http.StatusOK,
 		Status: "OK",
-		Data:   result,
+		Data:   "Voucher sucessfully updated",
 	}
 
 	c.JSON(http.StatusOK, webResponse)

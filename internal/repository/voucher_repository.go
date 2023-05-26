@@ -4,11 +4,12 @@ import (
 	"database/sql"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 )
 
 type VoucherRepository interface {
 	InsertVoucher(*entity.Voucher) (*entity.Voucher, error)
-	UpdateVoucher(*entity.Voucher) (*entity.Voucher, error)
+	UpdateVoucher(*req.UpdateVoucher) (*req.UpdateVoucher, error)
 	DeleteVoucher(*entity.Voucher) error
 	FindVoucherById(int) (*entity.Voucher, error)
 	FindUserByVoucher(string) (*entity.Voucher, error)
@@ -38,7 +39,7 @@ func (r *voucherRepository) InsertVoucher(voucher *entity.Voucher) (*entity.Vouc
 	voucher.Id = voucherID
 	return voucher, nil
 }
-func (r *voucherRepository) UpdateVoucher(voucher *entity.Voucher) (*entity.Voucher, error) {
+func (r *voucherRepository) UpdateVoucher(voucher *req.UpdateVoucher) (*req.UpdateVoucher, error) {
 
 	stmt, err := r.db.Prepare("UPDATE vouchers SET voucher_code = $1, is_available = $2, discount =$3 WHERE id = $4")
 	if err != nil {

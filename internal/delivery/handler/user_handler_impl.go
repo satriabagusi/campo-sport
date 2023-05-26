@@ -147,7 +147,7 @@ func (u *userHandler) FindUserByEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, webResponse)
 }
 
-func (u *userHandler) GetAllVoucher(c *gin.Context) {
+func (u *userHandler) GetAllUsers(c *gin.Context) {
 	result, err := u.userUsecase.GetAllUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

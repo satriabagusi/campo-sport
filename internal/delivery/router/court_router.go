@@ -16,10 +16,10 @@ func (u *CourtRouter) SetupRouter() {
 	{
 		//courts.Use(middleware.Authentication())
 		courts.POST("/", u.courHandler.InsertCourt)
-		courts.PUT("/:id", u.courHandler.UpdateCourt)
+		courts.PUT("/edit", u.courHandler.UpdateCourt)
 		courts.DELETE("/:id", u.courHandler.DeleteCourt)
 		courts.GET("/:id", u.courHandler.FindCourtByID)
-		courts.GET("/court", u.courHandler.FindCourtByCourtName)
+		courts.GET("/search", u.courHandler.FindCourtByCourtName)
 		courts.GET("/", u.courHandler.GetAllCourts)
 	}
 

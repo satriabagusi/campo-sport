@@ -26,7 +26,7 @@ func (u *UserRouter) SetupRouter() {
 		users.GET("/:id", u.userHandler.FindUserById)
 		users.GET("/email", u.userHandler.FindUserByEmail)
 		users.GET("/username", u.userHandler.FindUserByUsername)
-		users.GET("/", u.userHandler.GetAllVoucher)
+		users.GET("/", u.userHandler.GetAllUsers)
 	}
 
 }

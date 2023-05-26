@@ -56,35 +56,31 @@ func (h *courtHandler) InsertCourt(c *gin.Context) {
 }
 
 func (h *courtHandler) UpdateCourt(c *gin.Context) {
-	idParam := c.Param("id")
+	var updateCourt entity.Court
+	id := c.Query("id")
+	idInt, _ := strconv.Atoi(id)
+	updateCourt.Id = idInt
 
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
+	userInDb, _ := h.courtUsecase.FindCourtById(idInt)
+	if userInDb == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Court not found"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&updateCourt); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	_, err = h.courtUsecase.FindCourtById(id)
+	_, err := h.courtUsecase.UpdateCourt(&updateCourt)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "court not found"})
-		return
-	}
-
-	var updatedCourt entity.Court
-	if err := c.ShouldBindJSON(&updatedCourt); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	result, err := h.courtUsecase.UpdateCourt(&updatedCourt)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update court"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
 		return
 	}
 
 	webResponse := res.WebResponse{
-		Code:   200,
+		Code:   http.StatusOK,
 		Status: "OK",
-		Data:   result,
+		Data:   "Court sucessfully updated",
 	}
 
 	c.JSON(http.StatusOK, webResponse)
@@ -144,11 +140,11 @@ func (h *courtHandler) FindCourtByID(c *gin.Context) {
 	c.JSON(http.StatusOK, webResponse)
 }
 func (h *courtHandler) FindCourtByCourtName(c *gin.Context) {
-	voucherCode := c.Query("voucher_code")
+	voucherCode := c.Query("court_name")
 
 	result, err := h.courtUsecase.FindCourtByCourt(voucherCode)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "court not found"})
 		return
 	}
 	webResponse := res.WebResponse{

@@ -11,6 +11,11 @@ type User struct {
 	UserRole    int    `json:"user_role"`
 }
 
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type UpdatedUser struct {
 	Id          int    `json:"id"`
 	Username    string `json:"username" validate:"required"`
@@ -33,12 +38,11 @@ type UpdatedStatusUser struct {
 }
 
 type UpdateVoucher struct {
-	Id          int       `json:"id"`
-	VoucherCode string    `json:"voucher_code"`
-	IsAvailable bool      `json:"is_available"`
-	Discount    float32   `json:"discount"`
+	Id          int     `json:"id"`
+	VoucherCode string  `json:"voucher_code"`
+	IsAvailable bool    `json:"is_available"`
+	Discount    float32 `json:"discount"`
 }
-
 
 type UserDetail struct {
 	Id              int     `json:"id"`

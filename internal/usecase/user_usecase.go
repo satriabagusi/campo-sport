@@ -18,6 +18,7 @@ type UserUsecase interface {
 
 	InsertUser(user *req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
+	FindUserByUsernameLogin(string) (*entity.User, error)
 	Login(*entity.User) (*res.GetUserByUsername, error)
 	UpdatePassword(*req.UpdatedPassword) (*req.UpdatedPassword, error)
 }
@@ -61,6 +62,9 @@ func (u *userUsecase) InsertUser(user *req.User) (*res.User, error) {
 
 func (u *userUsecase) FindUserByUsername(username string) (*res.GetUserByUsername, error) {
 	return u.userRepository.FindUserByUsername(username)
+}
+func (u *userUsecase) FindUserByUsernameLogin(username string) (*entity.User, error) {
+	return u.userRepository.FindUserByUsernameLogin(username)
 }
 
 func (u *userUsecase) Login(user *entity.User) (*res.GetUserByUsername, error) {

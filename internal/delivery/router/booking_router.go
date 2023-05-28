@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/delivery/handler"
+	"github.com/satriabagusi/campo-sport/internal/delivery/middleware"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 )
 
@@ -14,7 +15,7 @@ type BookingRouter struct {
 func (b *BookingRouter) SetupRouter() {
 	courts := b.publicRoute.Group("/booking")
 	{
-		//courts.Use(middleware.Authentication())
+		courts.Use(middleware.Auth())
 		courts.POST("/", b.bookingHandler.GetAllBooking)
 		courts.PUT("/:id", b.bookingHandler.GetAllBooking)
 		courts.GET("/:id", b.bookingHandler.GetAllBooking)

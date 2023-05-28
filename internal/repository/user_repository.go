@@ -17,6 +17,7 @@ type UserRepository interface {
 	GetAllUsers() ([]res.GetAllUser, error)
 	InsertUser(*req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
+	FindUserByUsernameLogin(string) (*entity.User, error)
 	UpdatePassword(*req.UpdatedPassword) (*req.UpdatedPassword, error)
 }
 
@@ -51,10 +52,10 @@ func (r *userRepository) InsertUser(user *req.User) (*res.User, error) {
 
 func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUsername, error) {
 	var user res.GetUserByUsername
-	stmt, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email, ud.credential_proof, r.role_name, u.is_verified, u.created_at
+	stmt, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email,  r.role_name, u.is_verified, u.created_at
 	FROM users AS u
 	JOIN user_roles AS r ON u.role_id = r.id
-	JOIN user_details AS ud ON ud.user_id = u.id
+
 	WHERE u.username = $1 AND u.is_deleted = false;`)
 	if err != nil {
 		return nil, err
@@ -62,13 +63,29 @@ func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUser
 	defer stmt.Close()
 
 	row := stmt.QueryRow(username)
-	err = row.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.CredentialProof, &user.UserRole, &user.IsVerified, &user.CreatedAt)
+	err = row.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.UserRole, &user.IsVerified, &user.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
+func (r *userRepository) FindUserByUsernameLogin(username string) (*entity.User, error) {
+	var user entity.User
+	stmt, err := r.db.Prepare(`SELECT id, username , password, email, phone_number, created_at, updated_at
+	from users
+	WHERE username = $1 AND is_deleted = false;`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
 
+	row := stmt.QueryRow(username)
+	err = row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.PhoneNumber, &user.CreatedAt, &user.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 func (r *userRepository) DeleteUser(user *entity.User) error {
 	stmt, err := r.db.Prepare("UPDATE users set is_deleted = true id = $1")
 	if err != nil {
@@ -86,7 +103,9 @@ func (r *userRepository) DeleteUser(user *entity.User) error {
 
 func (r *userRepository) FindUserById(id int) (*res.GetUserByID, error) {
 	var user res.GetUserByID
-	stmtm, err := r.db.Prepare("SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified FROM users as u JOIN user_roles as r ON u.role_id = r.id WHERE u.id = $1;")
+	stmtm, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified 
+	FROM users as u JOIN user_roles as r ON u.role_id = r.id 	
+	WHERE u.id = $1 AND u.is_deleted = false`)
 	if err != nil {
 		return nil, err
 	}

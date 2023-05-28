@@ -15,12 +15,17 @@ func (v *VoucherRouter) SetupRouter() {
 	voucher := v.publicRoute.Group("/voucher")
 	{
 		//voucher.Use(middleware.Authentication())
-		voucher.POST("/", v.voucherHandler.InsertVoucher)
-		voucher.PUT("/", v.voucherHandler.UpdateVoucher)
-		voucher.DELETE("/:id", v.voucherHandler.DeleteVoucher)
 		voucher.GET("/:id", v.voucherHandler.FindVoucherByID)
 		voucher.GET("/search/", v.voucherHandler.FindVoucherByVoucherCode)
 		voucher.GET("/", v.voucherHandler.GetAllVoucher)
+	}
+
+	admin := v.publicRoute.Group("/admin")
+	{
+		//voucher.Use(middleware.Authentication())
+		admin.POST("/", v.voucherHandler.InsertVoucher)
+		admin.PUT("/", v.voucherHandler.UpdateVoucher)
+		admin.DELETE("/:id", v.voucherHandler.DeleteVoucher)
 	}
 
 }

@@ -20,7 +20,9 @@ type MyCustomClaims struct {
 	ID          int    `json:"id"`
 	Username    string `json:"username"`
 	Email       string `json:"email"`
+	Password    string `json:"password"`
 	PhoneNumber string `json:"phone_number"`
+	UserRole    int    `json:"user_role" default:"3"`
 	jwt.RegisteredClaims
 }
 
@@ -29,7 +31,9 @@ func CreateToken(user *entity.User) (string, error) {
 		user.Id,
 		user.Username,
 		user.Email,
+		user.Password,
 		user.PhoneNumber,
+		user.UserRole,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireTimeInt) * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

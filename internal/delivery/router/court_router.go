@@ -23,7 +23,7 @@ func (u *CourtRouter) SetupRouter() {
 
 	admin := u.publicRoute.Group("/admin/courts")
 	{
-		courts.Use(middleware.Auth())
+		admin.Use(middleware.Auth())
 		admin.POST("/", u.courHandler.InsertCourt)
 		admin.PUT("/edit", u.courHandler.UpdateCourt)
 		admin.DELETE("/:id", u.courHandler.DeleteCourt)

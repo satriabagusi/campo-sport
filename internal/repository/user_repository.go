@@ -71,7 +71,7 @@ func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUser
 }
 func (r *userRepository) FindUserByUsernameLogin(username string) (*entity.User, error) {
 	var user entity.User
-	stmt, err := r.db.Prepare(`SELECT id, username , password, email, phone_number, created_at, updated_at
+	stmt, err := r.db.Prepare(`SELECT id, username , password, email, phone_number,role_id, created_at, updated_at
 	from users
 	WHERE username = $1 AND is_deleted = false;`)
 	if err != nil {
@@ -80,7 +80,7 @@ func (r *userRepository) FindUserByUsernameLogin(username string) (*entity.User,
 	defer stmt.Close()
 
 	row := stmt.QueryRow(username)
-	err = row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.PhoneNumber, &user.CreatedAt, &user.UpdatedAt)
+	err = row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.PhoneNumber, &user.UserRole, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}

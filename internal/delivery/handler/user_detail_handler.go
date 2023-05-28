@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type UserDetailHandler interface {
@@ -26,27 +27,20 @@ func NewUserDetailHandler(userDetailUsecase usecase.UserDetailUsecase, userUseca
 
 func (h *userDetailHandler) UploadCredential(c *gin.Context) {
 
-	var user req.UserProfile
-	id := c.Query("id")
-	idInt, _ := strconv.Atoi(id)
-	user.UserId = idInt
+	var userReq req.UserProfile
 
-	// userInDb, _ := h.userUsecase.FindUserById(user.UserId)
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+	userId := user.ID
+	userReq.UserId = userId
+	userReq.File, _ = c.FormFile("file")
+	log.Println(userReq.UserId, userReq.File)
 
-	// if userInDb == nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "user belum terdaftar"})
-	// 	return
-	// }
-
-	if err := c.ShouldBind(&user); err != nil {
+	if err := c.ShouldBind(&userReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user.File, _ = c.FormFile("file")
-	//file, _ = fileHeader.Open()
-
-	updatedProfile, err := h.userDetailUsecase.UploadCredential(&user)
+	updatedProfile, err := h.userDetailUsecase.UploadCredential(&userReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

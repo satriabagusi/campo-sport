@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/delivery/handler"
+	"github.com/satriabagusi/campo-sport/internal/delivery/middleware"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
 )
 
@@ -14,7 +15,7 @@ type VoucherRouter struct {
 func (v *VoucherRouter) SetupRouter() {
 	voucher := v.publicRoute.Group("/voucher")
 	{
-		//voucher.Use(middleware.Authentication())
+		voucher.Use(middleware.Auth())
 		voucher.GET("/:id", v.voucherHandler.FindVoucherByID)
 		voucher.GET("/search/", v.voucherHandler.FindVoucherByVoucherCode)
 		voucher.GET("/", v.voucherHandler.GetAllVoucher)
@@ -22,7 +23,7 @@ func (v *VoucherRouter) SetupRouter() {
 
 	admin := v.publicRoute.Group("/admin")
 	{
-		//voucher.Use(middleware.Authentication())
+		admin.Use(middleware.Auth())
 		admin.POST("/", v.voucherHandler.InsertVoucher)
 		admin.PUT("/", v.voucherHandler.UpdateVoucher)
 		admin.DELETE("/:id", v.voucherHandler.DeleteVoucher)

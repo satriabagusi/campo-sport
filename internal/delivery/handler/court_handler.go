@@ -8,6 +8,7 @@ import (
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type CourtHandler interface {
@@ -28,6 +29,12 @@ func NewCourtHandler(courtUsecase usecase.CourtUsecase) CourtHandler {
 }
 
 func (h *courtHandler) InsertCourt(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
 	var newCourt entity.Court
 	if err := c.ShouldBindJSON(&newCourt); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -56,6 +63,12 @@ func (h *courtHandler) InsertCourt(c *gin.Context) {
 }
 
 func (h *courtHandler) UpdateCourt(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
 	var updateCourt entity.Court
 	id := c.Query("id")
 	idInt, _ := strconv.Atoi(id)
@@ -87,6 +100,12 @@ func (h *courtHandler) UpdateCourt(c *gin.Context) {
 }
 
 func (h *courtHandler) DeleteCourt(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
@@ -117,6 +136,7 @@ func (h *courtHandler) DeleteCourt(c *gin.Context) {
 }
 
 func (h *courtHandler) FindCourtByID(c *gin.Context) {
+	
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
@@ -140,6 +160,7 @@ func (h *courtHandler) FindCourtByID(c *gin.Context) {
 	c.JSON(http.StatusOK, webResponse)
 }
 func (h *courtHandler) FindCourtByCourtName(c *gin.Context) {
+	
 	voucherCode := c.Query("court_name")
 
 	result, err := h.courtUsecase.FindCourtByCourt(voucherCode)

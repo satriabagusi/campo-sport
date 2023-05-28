@@ -9,6 +9,7 @@ import (
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type VoucherHandler interface {
@@ -28,6 +29,13 @@ func NewVoucherHandler(voucherUsecase usecase.VoucherUsecase) VoucherHandler {
 	return &voucherHandler{voucherUsecase}
 }
 func (h *voucherHandler) InsertVoucher(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
+
 	var voucher entity.Voucher
 	if err := c.ShouldBindJSON(&voucher); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -56,6 +64,13 @@ func (h *voucherHandler) InsertVoucher(c *gin.Context) {
 }
 
 func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
+
 	var updateVoucher req.UpdateVoucher
 	id := c.Query("id")
 	idInt, _ := strconv.Atoi(id)
@@ -87,6 +102,12 @@ func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 
 }
 func (h *voucherHandler) DeleteVoucher(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		return
+	}
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
@@ -141,6 +162,7 @@ func (h *voucherHandler) FindVoucherByID(c *gin.Context) {
 
 }
 func (h *voucherHandler) FindVoucherByVoucherCode(c *gin.Context) {
+
 	voucherCode := c.Query("voucher_code")
 
 	result, err := h.voucherUsecase.FindVoucherByVoucher(voucherCode)

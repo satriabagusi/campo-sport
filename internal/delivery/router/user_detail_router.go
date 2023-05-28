@@ -16,9 +16,7 @@ func (u *UserDetailRouter) SetupRouter() {
 	userDetail := u.publicRoute.Group("/userdetail")
 	{
 		userDetail.Use(middleware.Auth())
-		userDetail.POST("/", u.userDetailHandler.GetAllUserDetail)
 		userDetail.PUT("/upload/", u.userDetailHandler.UploadCredential)
-		userDetail.GET("/court", u.userDetailHandler.GetAllUserDetail)
 	}
 
 }

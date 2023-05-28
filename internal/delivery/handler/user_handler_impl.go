@@ -198,8 +198,9 @@ func (u *userHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
+	//fmt.Println(userInDb.UserRole)
 	tokenString, err := token.CreateToken(userInDb)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -27,7 +27,7 @@ type GetAllUser struct {
 	PhoneNumber string    `json:"phone_number"`
 	IsVerified  bool      `json:"is_verified"`
 	CreatedAt   time.Time `json:"create_at"`
-	UserRole    int       `json:"user_role"`
+	UserRole    int       `json:"role_id"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
@@ -74,4 +74,3 @@ type LoginUserResponse struct {
 	RefreshTokenExpiresAt time.Time  `json:"refresh_token_expires_at"`
 	User                  GetAllUser `json:"user"`
 }
-

@@ -20,6 +20,7 @@ func (u *UserRouter) SetupRouter() {
 	{
 		users.Use(middleware.Auth())
 		users.PUT("/updatepw", u.userHandler.UpdatePassword)
+		users.PUT("/me/updatepw", u.userHandler.UpdateMyPassword)
 		users.DELETE("/:id", u.userHandler.DeleteUser)
 		users.GET("/me", u.userHandler.Me)
 		users.GET("/:id", u.userHandler.FindUserById)

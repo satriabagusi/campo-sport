@@ -10,7 +10,7 @@ import (
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
 
-// var mySigningKey = []byte("mysecretkey")
+
 var (
 	mySigningKey     = []byte(utility.GetEnv("SECRET_KEY"))
 	expireTimeInt, _ = strconv.Atoi(utility.GetEnv("TOKEN_EXPIRE_TIME_IN_MINUTES"))

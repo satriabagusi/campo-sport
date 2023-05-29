@@ -39,6 +39,7 @@ func (r *voucherRepository) InsertVoucher(voucher *entity.Voucher) (*entity.Vouc
 	voucher.Id = voucherID
 	return voucher, nil
 }
+
 func (r *voucherRepository) UpdateVoucher(voucher *req.UpdateVoucher) (*req.UpdateVoucher, error) {
 
 	stmt, err := r.db.Prepare("UPDATE vouchers SET voucher_code = $1, is_available = $2, discount =$3 WHERE id = $4")

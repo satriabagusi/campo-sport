@@ -32,18 +32,3 @@ func Encrypt(str string) string {
 func VerifyPassword(hashPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 }
-
-func HashPass(p string) string {
-	salt := 8
-	password := []byte(p)
-	hash, _ := bcrypt.GenerateFromPassword(password, salt)
-
-	return string(hash)
-}
-
-func ComparePass(h, p []byte) bool {
-	hash, pass := []byte(h), []byte(p)
-	err := bcrypt.CompareHashAndPassword(hash, pass)
-
-	return err == nil
-}

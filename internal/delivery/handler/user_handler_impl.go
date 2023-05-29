@@ -245,39 +245,4 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, webResponse)
 }
 
-// func (u *userHandler) Login(c *gin.Context) {
-// 	var user entity.User
 
-// 	if err := c.ShouldBindJSON(&user); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	userIndDb, err := u.userUsecase.FindUserByUsername(user.Username)
-
-// 	if err != nil {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	if user.Username != userIndDb.Username && user.Password != userIndDb.Password {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	secretKey := utility.GetEnv("SECRET_KEY")
-// 	expireTmeInt, err := strconv.Atoi(utility.GetEnv("TOKEN_EXPIRE_TIME_IN_MINUTES"))
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	expireAt := time.Now().Add(time.Minute * time.Duration(expireTmeInt))
-
-// 	tokenString, err := jwt.GenerateToken(int64(user.Id), expireAt, []byte(secretKey))
-
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
-
-// }

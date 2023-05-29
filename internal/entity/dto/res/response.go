@@ -87,3 +87,20 @@ type LoginUserResponse struct {
 	RefreshTokenExpiresAt time.Time  `json:"refresh_token_expires_at"`
 	User                  GetAllUser `json:"user"`
 }
+
+type GetUserProfile struct {
+	Id          int        `json:"id"`
+	Username    string     `json:"username"`
+	Email       string     `json:"email"`
+	PhoneNumber string     `json:"phone_number"`
+	IsVerified  bool       `json:"is_verified"`
+	CreatedAt   time.Time  `json:"create_at"`
+	UserRole    int        `json:"role_id"`
+	Detail      UserDetail `json:"user_detail"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+type UserDetail struct {
+	Balance int    `json:"balance" `
+	Url     string `json:"url_credential" `
+}

@@ -19,6 +19,7 @@ type UserRepository interface {
 	InsertUser(*req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
 	FindUserByUsernameLogin(string) (*entity.User, error)
+	FindUserDetailById(int) (res.UserDetail, error)
 	UpdatePassword(*req.UpdatedPassword) (*req.UpdatedPassword, error)
 }
 
@@ -207,4 +208,22 @@ func (r *userRepository) AdminGetAllUsers() ([]res.AdminGetAllUser, error) {
 	}
 
 	return users, nil
+}
+
+func (r *userRepository) FindUserDetailById(id int) (res.UserDetail, error) {
+	var user res.UserDetail
+	stmtm, err := r.db.Prepare(`SELECT credential_proof, balance 
+	FROM user_details JOIN users ON user_details.user_id = users.id 	
+	WHERE users.id = $1;`)
+	if err != nil {
+		return user, err
+	}
+	log.Println(id)
+	defer stmtm.Close()
+	row := stmtm.QueryRow(id)
+	err = row.Scan(&user.Url, &user.Balance)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }

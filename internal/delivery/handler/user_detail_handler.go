@@ -12,7 +12,6 @@ import (
 
 type UserDetailHandler interface {
 	UploadCredential(*gin.Context)
-	GetAllUserDetail(*gin.Context)
 }
 
 type userDetailHandler struct {
@@ -46,8 +45,4 @@ func (h *userDetailHandler) UploadCredential(c *gin.Context) {
 	}
 
 	helper.Response(c, http.StatusCreated, "Created", updatedProfile)
-}
-
-func (h *userDetailHandler) GetAllUserDetail(c *gin.Context) {
-
 }

@@ -35,6 +35,7 @@ func (u *UserRouter) SetupRouter() {
 		admin.DELETE("/:id", u.userHandler.DeleteUser)
 		admin.PUT("/updatests", u.userHandler.UpdateUser)
 		admin.PUT("/updatepw", u.userHandler.UpdatePassword)
+		admin.GET("/", u.userHandler.AdminGetAllUsers)
 	}
 
 }

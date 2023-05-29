@@ -27,6 +27,7 @@ func (r *UserTopUpRouter) SetupRouter() {
 	{
 		usersTopUpBalance.Use(middleware.Authentication())
 		usersTopUpBalance.POST("/top-up", r.userTopUpHandler.TopUpBalance)
+		usersTopUpBalance.GET("/check", r.userTopUpHandler.CheckBalance)
 	}
 }
 

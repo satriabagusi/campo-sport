@@ -17,6 +17,7 @@ import (
 
 type UserTopUpUsecase interface {
 	TopUpBalance(newTopUp *entity.UserTopUp) (*entity.UserTopUp, error)
+	CheckBalance(orderNumber string) (*entity.UserDetail, error)
 }
 
 type userTopUpUsecase struct {
@@ -29,6 +30,10 @@ func (u *userTopUpUsecase) TopUpBalance(newTopUp *entity.UserTopUp) (*entity.Use
 	}
 
 	return u.userTopUpRepo.TopUpBalance(newTopUp)
+}
+
+func (u *userTopUpUsecase) CheckBalance(orderNumber string) (*entity.UserDetail, error) {
+	return u.userTopUpRepo.CheckBalance(orderNumber)
 }
 
 func NewUserTopUpUsecase(userTopUp repository.UserTopUpRepository) UserTopUpUsecase {

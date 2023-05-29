@@ -18,6 +18,7 @@ import (
 
 type UserTopUpHandler interface {
 	TopUpBalance(*gin.Context)
+	CheckBalance(*gin.Context)
 }
 
 type userTopUpHandler struct {
@@ -53,6 +54,25 @@ func (h *userTopUpHandler) TopUpBalance(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, gin.H{
 		"code":    http.StatusAccepted,
 		"message": "Successfully Created Top Up Request.",
+		"data":    result,
+	})
+}
+
+func (h *userTopUpHandler) CheckBalance(c *gin.Context) {
+	bookingNumber := c.Query("order_number")
+
+	result, err := h.userTopUpUsecase.CheckBalance(bookingNumber)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "Check Balance User Successfully",
 		"data":    result,
 	})
 }

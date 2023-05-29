@@ -21,7 +21,7 @@ func (v *VoucherRouter) SetupRouter() {
 		voucher.GET("/", v.voucherHandler.GetAllVoucher)
 	}
 
-	admin := v.publicRoute.Group("/admin")
+	admin := v.publicRoute.Group("/admin/voucher")
 	{
 		admin.Use(middleware.Auth())
 		admin.POST("/", v.voucherHandler.InsertVoucher)

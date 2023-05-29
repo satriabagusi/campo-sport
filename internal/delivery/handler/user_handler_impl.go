@@ -38,31 +38,38 @@ func (u *userHandler) InsertUser(c *gin.Context) {
 
 	result, err := u.userUsecase.InsertUser(&user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed insert user"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"data": result})
 }
 func (u *userHandler) UpdateUser(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorize!"})
+		return
+	}
+
 	var updateUserSts req.UpdatedStatusUser
 	id := c.Query("id")
 	idInt, _ := strconv.Atoi(id)
 	updateUserSts.Id = idInt
 
-	userInDb, err := u.userUsecase.FindUserById(idInt)
+	userInDb, _ := u.userUsecase.FindUserById(idInt)
 	if userInDb == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found!"})
 		return
 	}
 
 	if err := c.ShouldBindJSON(&updateUserSts); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to update user"})
 		return
 	}
 	result, err := u.userUsecase.UpdateUserStatus(&updateUserSts)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
 		return
 	}
 
@@ -92,7 +99,7 @@ func (u *userHandler) DeleteUser(c *gin.Context) {
 
 	err = u.userUsecase.DeleteUser(&entity.User{Id: id})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete user"})
 		return
 	}
 
@@ -117,7 +124,7 @@ func (u *userHandler) FindUserById(c *gin.Context) {
 	result, err := u.userUsecase.FindUserById(id)
 	if err != nil {
 
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "user doesn't exist"})
 		return
 	}
 
@@ -149,7 +156,7 @@ func (u *userHandler) FindUserByEmail(c *gin.Context) {
 func (u *userHandler) GetAllUsers(c *gin.Context) {
 	result, err := u.userUsecase.GetAllUsers()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get data"})
 		return
 	}
 	webResponse := res.WebResponse{
@@ -188,14 +195,14 @@ func (u *userHandler) Login(c *gin.Context) {
 	var user res.GetUserByUsername
 	userInDb, err := u.userUsecase.FindUserByUsernameLogin(login.Username)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password are wrong"})
 		return
 	}
 
 	//memverifikasi apakah password yang dimasukkan sama di database dengan helper VerifyPassword
 	if err := utility.VerifyPassword(userInDb.Password, login.Password); err != nil {
 		log.Println(user.Password, login.Password)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password are wrong"})
 		return
 	}
 	//fmt.Println(userInDb.UserRole)
@@ -211,6 +218,12 @@ func (u *userHandler) Login(c *gin.Context) {
 }
 
 func (u *userHandler) UpdatePassword(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized!"})
+		return
+	}
 
 	var userUpdatePassword req.UpdatedPassword
 	id := c.Query("id")
@@ -232,7 +245,7 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 
 	_, err := u.userUsecase.UpdatePassword(&userUpdatePassword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update password"})
 		return
 	}
 
@@ -244,5 +257,3 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, webResponse)
 }
-
-

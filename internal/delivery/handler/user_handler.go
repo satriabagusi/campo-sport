@@ -26,8 +26,6 @@ type UserHandler interface {
 
 func (u *userHandler) Me(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
-	
-	
 
 	userResponse := &res.GetAllUser{
 		Id:          user.ID,
@@ -55,22 +53,22 @@ func (u *userHandler) UpdateMyPassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&userPassword); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password is required!"})
 		return
 	}
 
 	userPassword.Password = utility.Encrypt(userPassword.Password)
 
-	pw, err := u.userUsecase.UpdatePassword(userPassword)
+	_, err := u.userUsecase.UpdatePassword(userPassword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update password"})
 		return
 	}
 
 	webResponse := res.WebResponse{
 		Code:   http.StatusOK,
 		Status: "OK",
-		Data:   pw,
+		Data:   "Successfully update password!",
 	}
 
 	c.JSON(http.StatusOK, webResponse)

@@ -87,7 +87,7 @@ func (r *userRepository) FindUserByUsernameLogin(username string) (*entity.User,
 	return &user, nil
 }
 func (r *userRepository) DeleteUser(user *entity.User) error {
-	stmt, err := r.db.Prepare("UPDATE users set is_deleted = true id = $1")
+	stmt, err := r.db.Prepare("UPDATE users set is_deleted = true WHERE id = $1")
 	if err != nil {
 		return err
 	}

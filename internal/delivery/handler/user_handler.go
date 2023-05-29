@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
+	"github.com/satriabagusi/campo-sport/pkg/helper"
 	"github.com/satriabagusi/campo-sport/pkg/token"
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
@@ -34,13 +36,8 @@ func (u *userHandler) Me(c *gin.Context) {
 		PhoneNumber: user.PhoneNumber,
 		UserRole:    user.UserRole,
 	}
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   userResponse,
-	}
 
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", userResponse)
 }
 
 func (u *userHandler) UpdateMyPassword(c *gin.Context) {
@@ -53,7 +50,7 @@ func (u *userHandler) UpdateMyPassword(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&userPassword); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "password is required!"})
+		helper.Response(c, http.StatusBadRequest, "password is required!", nil)
 		return
 	}
 
@@ -61,15 +58,21 @@ func (u *userHandler) UpdateMyPassword(c *gin.Context) {
 
 	_, err := u.userUsecase.UpdatePassword(userPassword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update password"})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Failed to update password", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   "Successfully update password!",
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "Sucessfully update password", nil)
 }

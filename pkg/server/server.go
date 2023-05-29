@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 	"github.com/satriabagusi/campo-sport/internal/delivery/router"
 	"github.com/satriabagusi/campo-sport/internal/repository"
@@ -30,6 +31,7 @@ func (s *Server) Initialize(connstr string) error {
 	if err != nil {
 		return err
 	}
+	validator := validator.New()
 
 	//initialize repo
 	userRepo := repository.NewUserRepository(db)
@@ -39,10 +41,10 @@ func (s *Server) Initialize(connstr string) error {
 	userDetailRepo := repository.NewUserDetailRepository(db)
 
 	//initialize usecase
-	userUsecase := usecase.NewUserUsecase(userRepo, userDetailRepo)
-	courtUsecase := usecase.NewCourtUsecase(courtRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo, userDetailRepo, validator)
+	courtUsecase := usecase.NewCourtUsecase(courtRepo, validator)
 	bookingUsecase := usecase.NewBookingUsecase(bookingRepo)
-	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo)
+	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo, validator)
 	userDetailUsecase := usecase.NewUserDetailUsecase(userDetailRepo)
 
 	//setup router

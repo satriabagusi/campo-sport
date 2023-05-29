@@ -33,15 +33,15 @@ type UpdatedPassword struct {
 
 type UpdatedStatusUser struct {
 	Id         int  `json:"id"`
-	UserRole   int  `json:"user_role"`
-	IsVerified bool `json:"is_verified"`
+	UserRole   int  `json:"user_role" validate:"required"`
+	IsVerified bool `json:"is_verified" validate:"required"`
 }
 
 type UpdateVoucher struct {
 	Id          int     `json:"id"`
-	VoucherCode string  `json:"voucher_code"`
+	VoucherCode string  `json:"voucher_code" validate:"required"`
 	IsAvailable bool    `json:"is_available"`
-	Discount    float32 `json:"discount"`
+	Discount    float32 `json:"discount" validate:"required,numeric"`
 }
 
 type UserDetail struct {

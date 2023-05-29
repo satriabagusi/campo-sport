@@ -11,11 +11,11 @@ package entity
 import "time"
 
 type Court struct {
-	Id          int       `json:"id"`
-	CourtName   string    `json:"court_name"`
-	Description string    `json:"description"`
-	IsAvailable bool      `json:"is_available"`
-	CourtPrice  float32   `json:"courtes_price"`
+	Id          int       `json:"id" `
+	CourtName   string    `json:"court_name" validate:"required"`
+	Description string    `json:"description" validate:"required"`
+	IsAvailable bool      `json:"is_available" `
+	CourtPrice  float32   `json:"courtes_price" validate:"required"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

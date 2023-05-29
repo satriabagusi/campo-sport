@@ -3,6 +3,7 @@ package usecase
 import (
 	"fmt"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
@@ -26,11 +27,13 @@ type UserUsecase interface {
 type userUsecase struct {
 	userRepository       repository.UserRepository
 	userDetailRepository repository.UserDetailRepository
+	validate             *validator.Validate
 }
 
-func NewUserUsecase(userRepository repository.UserRepository, userDetailRepository repository.UserDetailRepository) UserUsecase {
+func NewUserUsecase(userRepository repository.UserRepository, userDetailRepository repository.UserDetailRepository, validate *validator.Validate) UserUsecase {
 	return &userUsecase{userRepository,
 		userDetailRepository,
+		validate,
 	}
 }
 
@@ -40,7 +43,12 @@ func (u *userUsecase) InsertUser(user *req.User) (*res.User, error) {
 		return nil, fmt.Errorf("password must be atleast %d characters", 6)
 	}
 
-	_, err := u.userRepository.InsertUser(user)
+	err := u.validate.Struct(user)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = u.userRepository.InsertUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +76,18 @@ func (u *userUsecase) FindUserByUsernameLogin(username string) (*entity.User, er
 }
 
 func (u *userUsecase) Login(user *entity.User) (*res.GetUserByUsername, error) {
+	err := u.validate.Struct(user)
+	if err != nil {
+		return nil, err
+	}
 	return u.userRepository.FindUserByUsername(user.Username)
 }
 
 func (u *userUsecase) UpdateUserStatus(updatedUser *req.UpdatedStatusUser) (*req.UpdatedStatusUser, error) {
+	err := u.validate.Struct(updatedUser)
+	if err != nil {
+		return nil, err
+	}
 	return u.userRepository.UpdateUserStatus(updatedUser)
 }
 
@@ -91,5 +107,9 @@ func (u *userUsecase) GetAllUsers() ([]res.GetAllUser, error) {
 	return u.userRepository.GetAllUsers()
 }
 func (u *userUsecase) UpdatePassword(updatePw *req.UpdatedPassword) (*req.UpdatedPassword, error) {
+	err := u.validate.Struct(updatePw)
+	if err != nil {
+		return nil, err
+	}
 	return u.userRepository.UpdatePassword(updatePw)
 }

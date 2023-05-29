@@ -5,10 +5,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
-	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/helper"
 	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
@@ -32,42 +33,48 @@ func (h *voucherHandler) InsertVoucher(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
 	if user.UserRole != 1 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
 	var voucher entity.Voucher
 	if err := c.ShouldBindJSON(&voucher); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request! Data required", nil)
 		return
 	}
 
 	voucherInDb, _ := h.voucherUsecase.FindVoucherByVoucher(voucher.VoucherCode)
 	if voucherInDb != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "voucher already exists"})
+		helper.Response(c, http.StatusConflict, "voucher already exist", nil)
 		return
 	}
 
 	result, err := h.voucherUsecase.InsertVoucher(&voucher)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation Error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Server Error!", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   201,
-		Status: "OK",
-		Data:   result,
-	}
-
-	c.JSON(http.StatusCreated, webResponse)
+	helper.Response(c, http.StatusCreated, "OK", result)
 }
 
 func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
 	if user.UserRole != 1 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
@@ -78,63 +85,63 @@ func (h *voucherHandler) UpdateVoucher(c *gin.Context) {
 
 	userInDb, _ := h.voucherUsecase.FindVoucherById(idInt)
 	if userInDb == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Voucher not found"})
+		helper.Response(c, http.StatusNotFound, "voucher not found", nil)
 		return
 	}
 
 	if err := c.ShouldBindJSON(&updateVoucher); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request!", nil)
 		return
 	}
 	_, err := h.voucherUsecase.UpdateVoucher(&updateVoucher)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update voucher"})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation Error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Server Error!", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   "Voucher sucessfully updated",
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "Voucher successfully updated!", nil)
 
 }
 func (h *voucherHandler) DeleteVoucher(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
 	if user.UserRole != 1 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorize"})
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request!", nil)
 		return
 	}
 
 	_, err = h.voucherUsecase.FindVoucherById(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "voucher not found"})
+		helper.Response(c, http.StatusNotFound, "voucher not found", nil)
 		return
 	}
 
 	err = h.voucherUsecase.DeleteVoucher(&entity.Voucher{Id: id})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusInternalServerError, "failed to delete voucher", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   "voucher has been deleted",
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "voucher has been deleted", nil)
 
 }
 func (h *voucherHandler) FindVoucherByID(c *gin.Context) {
@@ -142,23 +149,17 @@ func (h *voucherHandler) FindVoucherByID(c *gin.Context) {
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request!", nil)
 		return
 	}
 
 	result, err := h.voucherUsecase.FindVoucherById(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "voucher not found"})
+		helper.Response(c, http.StatusNotFound, "Voucher not found", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   result,
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", result)
 
 }
 func (h *voucherHandler) FindVoucherByVoucherCode(c *gin.Context) {
@@ -167,28 +168,18 @@ func (h *voucherHandler) FindVoucherByVoucherCode(c *gin.Context) {
 
 	result, err := h.voucherUsecase.FindVoucherByVoucher(voucherCode)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		helper.Response(c, http.StatusNotFound, "user not found", nil)
 		return
 	}
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   result,
-	}
-	c.JSON(http.StatusOK, webResponse)
+
+	helper.Response(c, http.StatusOK, "OK", result)
 }
 
 func (h *voucherHandler) GetAllVoucher(c *gin.Context) {
 	result, err := h.voucherUsecase.GetAllVoucher()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusInternalServerError, "failed to get vouchers", nil)
 		return
 	}
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   result,
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", result)
 }

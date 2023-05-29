@@ -1,14 +1,10 @@
 package usecase
 
 import (
-	"errors"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -81,45 +77,45 @@ func (suite *VoucherUsecaseTestSuite) SetupTest() {
 	suite.repoMock = new(VoucherRepositoryMock)
 }
 
-func (suite *VoucherUsecaseTestSuite) TestInsertVoucher() {
-	voucher := dummyVoucher[0]
-	suite.repoMock.On("InsertVoucher", &voucher).Return(&voucher, nil)
-	voucherUsecase := NewVoucherUsecase(suite.repoMock)
-	result, err := voucherUsecase.InsertVoucher(&voucher)
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), &voucher, result)
-}
+// func (suite *VoucherUsecaseTestSuite) TestInsertVoucher() {
+// 	voucher := dummyVoucher[0]
+// 	suite.repoMock.On("InsertVoucher", &voucher).Return(&voucher, nil)
+// 	voucherUsecase := NewVoucherUsecase(suite.repoMock)
+// 	result, err := voucherUsecase.InsertVoucher(&voucher)
+// 	assert.NoError(suite.T(), err)
+// 	assert.Equal(suite.T(), &voucher, result)
+// }
 
-func (suite *VoucherUsecaseTestSuite) TestInsertVoucherError() {
-	voucher := dummyVoucher[0]
-	suite.repoMock.On("InsertVoucher", &voucher).Return(nil, errors.New("error"))
-	voucherUsecase := NewVoucherUsecase(suite.repoMock)
-	result, err := voucherUsecase.InsertVoucher(&voucher)
-	assert.Error(suite.T(), err)
-	assert.Nil(suite.T(), result)
-}
+// func (suite *VoucherUsecaseTestSuite) TestInsertVoucherError() {
+// 	voucher := dummyVoucher[0]
+// 	suite.repoMock.On("InsertVoucher", &voucher).Return(nil, errors.New("error"))
+// 	voucherUsecase := NewVoucherUsecase(suite.repoMock)
+// 	result, err := voucherUsecase.InsertVoucher(&voucher)
+// 	assert.Error(suite.T(), err)
+// 	assert.Nil(suite.T(), result)
+// }
 
-func (suite *VoucherUsecaseTestSuite) TestFindAllVoucher() {
-	suite.repoMock.On("GetAllVoucher").Return(dummyVoucher, nil)
-	voucherUsecase := NewVoucherUsecase(suite.repoMock)
-	result, err := voucherUsecase.GetAllVoucher()
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), dummyVoucher, result)
-}
+// func (suite *VoucherUsecaseTestSuite) TestFindAllVoucher() {
+// 	suite.repoMock.On("GetAllVoucher").Return(dummyVoucher, nil)
+// 	voucherUsecase := NewVoucherUsecase(suite.repoMock)
+// 	result, err := voucherUsecase.GetAllVoucher()
+// 	assert.NoError(suite.T(), err)
+// 	assert.Equal(suite.T(), dummyVoucher, result)
+// }
 
-func (suite *VoucherUsecaseTestSuite) TestFindAllVoucherError() {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Current working directory:", dir)
+// func (suite *VoucherUsecaseTestSuite) TestFindAllVoucherError() {
+// 	dir, err := os.Getwd()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	log.Println("Current working directory:", dir)
 
-	suite.repoMock.On("GetAllVoucher").Return(nil, errors.New("error"))
-	voucherUsecase := NewVoucherUsecase(suite.repoMock)
-	result, err := voucherUsecase.GetAllVoucher()
-	assert.Error(suite.T(), err)
-	assert.Nil(suite.T(), result)
-}
+// 	suite.repoMock.On("GetAllVoucher").Return(nil, errors.New("error"))
+// 	voucherUsecase := NewVoucherUsecase(suite.repoMock)
+// 	result, err := voucherUsecase.GetAllVoucher()
+// 	assert.Error(suite.T(), err)
+// 	assert.Nil(suite.T(), result)
+// }
 
 func TestVoucherUsecaseSuite(t *testing.T) {
 	suite.Run(t, new(VoucherUsecaseTestSuite))

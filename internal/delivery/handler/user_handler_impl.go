@@ -6,10 +6,12 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/helper"
 	"github.com/satriabagusi/campo-sport/pkg/token"
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
@@ -24,13 +26,13 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 func (u *userHandler) InsertUser(c *gin.Context) {
 	var user req.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request! data required", nil)
 		return
 	}
 
 	userInDb, _ := u.userUsecase.FindUserByUsername(user.Username)
 	if userInDb != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
+		helper.Response(c, http.StatusConflict, "User already exist", nil)
 		return
 	}
 
@@ -38,17 +40,29 @@ func (u *userHandler) InsertUser(c *gin.Context) {
 
 	result, err := u.userUsecase.InsertUser(&user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed insert user"})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Failed to register!", nil)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": result})
+	helper.Response(c, http.StatusCreated, "OK", result)
 }
 func (u *userHandler) UpdateUser(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
 	if user.UserRole != 1 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorize!"})
+		helper.Response(c, http.StatusUnauthorized, "Unauthorizes", nil)
 		return
 	}
 
@@ -59,27 +73,22 @@ func (u *userHandler) UpdateUser(c *gin.Context) {
 
 	userInDb, _ := u.userUsecase.FindUserById(idInt)
 	if userInDb == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found!"})
+		helper.Response(c, http.StatusNotFound, "User not found!", nil)
 		return
 	}
 
 	if err := c.ShouldBindJSON(&updateUserSts); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to update user"})
+		helper.Response(c, http.StatusBadRequest, "Bad request ! failed to update user", nil)
 		return
 	}
 	result, err := u.userUsecase.UpdateUserStatus(&updateUserSts)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
+		helper.Response(c, http.StatusInternalServerError, "Server error", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   result,
-	}
+	helper.Response(c, http.StatusOK, "OK", result)
 
-	c.JSON(http.StatusOK, webResponse)
 }
 
 func (u *userHandler) DeleteUser(c *gin.Context) {
@@ -87,29 +96,24 @@ func (u *userHandler) DeleteUser(c *gin.Context) {
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusInternalServerError, "server error!", nil)
 		return
 	}
 
 	_, err = u.userUsecase.FindUserById(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "voucher not found"})
+
+		helper.Response(c, http.StatusNotFound, "user not found", nil)
 		return
 	}
 
 	err = u.userUsecase.DeleteUser(&entity.User{Id: id})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete user"})
+		helper.Response(c, http.StatusInternalServerError, "Server error", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   "voucher has been deleted",
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "user has been deleted", nil)
 }
 func (u *userHandler) FindUserById(c *gin.Context) {
 
@@ -117,24 +121,17 @@ func (u *userHandler) FindUserById(c *gin.Context) {
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request!", nil)
 		return
 	}
 
 	result, err := u.userUsecase.FindUserById(id)
 	if err != nil {
-
-		c.JSON(http.StatusNotFound, gin.H{"error": "user doesn't exist"})
+		helper.Response(c, http.StatusNotFound, "user doesn't exist", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   200,
-		Status: "OK",
-		Data:   result,
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", result)
 }
 
 func (u *userHandler) FindUserByEmail(c *gin.Context) {
@@ -142,30 +139,20 @@ func (u *userHandler) FindUserByEmail(c *gin.Context) {
 
 	result, err := u.userUsecase.FindUserByEmail(emailUser)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		helper.Response(c, http.StatusNotFound, "user not found", nil)
 		return
 	}
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   result,
-	}
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", result)
 }
 
 func (u *userHandler) GetAllUsers(c *gin.Context) {
 	result, err := u.userUsecase.GetAllUsers()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get data"})
+		helper.Response(c, http.StatusInternalServerError, "Failed to get data", nil)
 		return
 	}
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   result,
-	}
 
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "OK", result)
 }
 
 func (u *userHandler) FindUserByUsername(c *gin.Context) {
@@ -173,47 +160,47 @@ func (u *userHandler) FindUserByUsername(c *gin.Context) {
 
 	result, err := u.userUsecase.FindUserByUsername(username)
 	if result == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Data tidak ada"})
+		helper.Response(c, http.StatusNotFound, "User not found", nil)
 		return
 	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Kesalahan server"})
+		helper.Response(c, http.StatusInternalServerError, "Server error!", nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	helper.Response(c, http.StatusOK, "OK", result)
 }
 
 func (u *userHandler) Login(c *gin.Context) {
 	var login req.Login
 
 	if err := c.ShouldBindJSON(&login); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request! data required", nil)
 		return
 	}
 
 	var user res.GetUserByUsername
 	userInDb, err := u.userUsecase.FindUserByUsernameLogin(login.Username)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password are wrong"})
+		helper.Response(c, http.StatusNotFound, "username or password are wrong", nil)
 		return
 	}
 
 	//memverifikasi apakah password yang dimasukkan sama di database dengan helper VerifyPassword
 	if err := utility.VerifyPassword(userInDb.Password, login.Password); err != nil {
 		log.Println(user.Password, login.Password)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password are wrong"})
+		helper.Response(c, http.StatusNotFound, "username or password are wrong", nil)
 		return
 	}
 	//fmt.Println(userInDb.UserRole)
 	tokenString, err := token.CreateToken(userInDb)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusInternalServerError, "Server error!", nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	helper.Response(c, http.StatusOK, "OK", tokenString)
 
 }
 
@@ -221,7 +208,7 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
 	if user.UserRole != 1 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized!"})
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
@@ -232,12 +219,12 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 
 	userInDb, _ := u.userUsecase.FindUserById(idInt)
 	if userInDb == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		helper.Response(c, http.StatusNotFound, "User not found", nil)
 		return
 	}
 
 	if err := c.ShouldBindJSON(&userUpdatePassword); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.Response(c, http.StatusBadRequest, "Bad request! data required", nil)
 		return
 	}
 
@@ -245,15 +232,21 @@ func (u *userHandler) UpdatePassword(c *gin.Context) {
 
 	_, err := u.userUsecase.UpdatePassword(&userUpdatePassword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update password"})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation Error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Server Error!", nil)
 		return
 	}
 
-	webResponse := res.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   "Password sucessfully updated",
-	}
-
-	c.JSON(http.StatusOK, webResponse)
+	helper.Response(c, http.StatusOK, "Password sucessfully updated", nil)
 }

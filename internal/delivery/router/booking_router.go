@@ -15,7 +15,6 @@ type BookingRouter struct {
 func (b *BookingRouter) SetupRouter() {
 	courts := b.publicRoute.Group("/booking")
 	{
-		//courts.Use(middleware.Authentication())
 		courts.Use(middleware.Auth())
 		courts.POST("/", b.bookingHandler.CreateBooking)
 		courts.PUT("/update", b.bookingHandler.UpdateBookingPaymentStatus)

@@ -136,11 +136,14 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 
 	if err != nil {
 		log.Println("Error creating book transaction")
+		log.Println(newBooking.Id)
+		log.Println(newBooking)
 		return nil, err
 	}
 
 	rDetailBook, err := r.db.Prepare(`INSERT INTO booking_details (booking_id, date_book, start_time, end_time) VALUES ($1, $2, $3, $4)`)
 	if err != nil {
+
 		return nil, err
 	}
 	defer rDetailBook.Close()

@@ -92,6 +92,12 @@ func (u *userHandler) UpdateUser(c *gin.Context) {
 }
 
 func (u *userHandler) DeleteUser(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)

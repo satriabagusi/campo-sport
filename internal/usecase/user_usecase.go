@@ -16,6 +16,7 @@ type UserUsecase interface {
 	FindUserById(int) (*res.GetUserByID, error)
 	FindUserByEmail(string) (*res.GetUserByUsername, error)
 	GetAllUsers() ([]res.GetAllUser, error)
+	AdminGetAllUsers() ([]res.AdminGetAllUser, error)
 
 	InsertUser(user *req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
@@ -112,4 +113,8 @@ func (u *userUsecase) UpdatePassword(updatePw *req.UpdatedPassword) (*req.Update
 		return nil, err
 	}
 	return u.userRepository.UpdatePassword(updatePw)
+}
+
+func (u *userUsecase) AdminGetAllUsers() ([]res.AdminGetAllUser, error) {
+	return u.userRepository.AdminGetAllUsers()
 }

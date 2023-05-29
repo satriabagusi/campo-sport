@@ -7,15 +7,35 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
 
-func Authentication() gin.HandlerFunc {
+func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.Method == "POST" && (c.Request.URL.Path == "/auth/login/" || c.Request.URL.Path == "/api/v1/users/register") {
-			c.Next()
+		accessToken := c.GetHeader("Authorization")
+
+		if accessToken == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+			c.Abort()
 			return
 		}
+
+		user, err := token.ValidateToken(accessToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			c.Abort()
+			return
+		}
+
+		c.Set("userinfo", user)
+
+		c.Next()
+	}
+}
+
+func Authentication() gin.HandlerFunc {
+	return func(c *gin.Context) {
 
 		//Get the Authorization header
 		authHeader := c.GetHeader("Authorization")
@@ -35,9 +55,6 @@ func Authentication() gin.HandlerFunc {
 
 		//Parse the token
 		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-			//Provide your own secret key or verification logic here
-			//You can retrieve the secret key from a config file environtment variable
-			//For example, you can use the same key to sign and verivy the token
 			secretKey := utility.GetEnv("SECRET_KEY")
 			return []byte(secretKey), nil
 		})
@@ -54,10 +71,6 @@ func Authentication() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
-		//Set the user information iun the context for further processing
-		//For example, you can extract the user ID from the token and set it in the context
-		//The user information can be retrieved in the handler functions using c.Getstring("userID")
 		claims, ok := token.Claims.(jwt.MapClaims)
 
 		if !ok {
@@ -73,10 +86,9 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		userID := fmt.Sprintf("%.0f", userIdClaims) //Convert float64 to string
+		userID := fmt.Sprintf("%.0f", userIdClaims)
 		c.Set("userID", userID)
 
-		//continue to the next middleware or handler
 		c.Next()
 	}
 }

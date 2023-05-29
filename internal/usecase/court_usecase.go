@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
 	"github.com/satriabagusi/campo-sport/internal/repository"
@@ -17,17 +18,26 @@ type CourtUsecase interface {
 
 type courtUsecase struct {
 	courtRepository repository.CourtRepository
+	Validate        *validator.Validate
 }
 
-func NewCourtUsecase(courtRepository repository.CourtRepository) CourtUsecase {
-	return &courtUsecase{courtRepository}
+func NewCourtUsecase(courtRepository repository.CourtRepository, validate *validator.Validate) CourtUsecase {
+	return &courtUsecase{courtRepository, validate}
 }
 
 func (u *courtUsecase) InsertCourt(newCourt *entity.Court) (*res.Court, error) {
+	err := u.Validate.Struct(newCourt)
+	if err != nil {
+		return nil, err
+	}
 	return u.courtRepository.InsertCourt(newCourt)
 }
 
 func (u *courtUsecase) UpdateCourt(updatedCourt *entity.Court) (*res.Court, error) {
+	err := u.Validate.Struct(updatedCourt)
+	if err != nil {
+		return nil, err
+	}
 	return u.courtRepository.UpdateCourt(updatedCourt)
 }
 

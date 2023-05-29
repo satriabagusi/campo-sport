@@ -15,16 +15,14 @@ type UserDetailRouter struct {
 func (u *UserDetailRouter) SetupRouter() {
 	userDetail := u.publicRoute.Group("/userdetail")
 	{
-		userDetail.Use(middleware.Authentication())
-		userDetail.POST("/", u.userDetailHandler.GetAllUserDetail)
-		userDetail.PUT("/:id", u.userDetailHandler.GetAllUserDetail)
-		userDetail.GET("/court", u.userDetailHandler.GetAllUserDetail)
+		userDetail.Use(middleware.Auth())
+		userDetail.PUT("/upload/", u.userDetailHandler.UploadCredential)
 	}
 
 }
 
-func NewUserDetailRouter(publicRoute *gin.RouterGroup, userDetailUsecase usecase.UserDetailUsecase) {
-	userDetailHandler := handler.NewUserDetailHandler(userDetailUsecase)
+func NewUserDetailRouter(publicRoute *gin.RouterGroup, userDetailUsecase usecase.UserDetailUsecase, userUsecase usecase.UserUsecase) {
+	userDetailHandler := handler.NewUserDetailHandler(userDetailUsecase, userUsecase)
 	rt := UserDetailRouter{
 		userDetailHandler,
 		publicRoute,

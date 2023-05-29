@@ -2,105 +2,77 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
-	"time"
 
-	jwt "github.com/eulbyvan/auth-go"
 	"github.com/gin-gonic/gin"
-	"github.com/satriabagusi/campo-sport/internal/entity"
+	"github.com/go-playground/validator/v10"
 	"github.com/satriabagusi/campo-sport/internal/entity/dto/req"
-	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/internal/entity/dto/res"
+	"github.com/satriabagusi/campo-sport/pkg/helper"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
 
 type UserHandler interface {
 	InsertUser(*gin.Context)
+	FindUserById(*gin.Context)
 	FindUserByUsername(*gin.Context)
+	FindUserByEmail(*gin.Context)
+	GetAllUsers(*gin.Context)
+	UpdateUser(*gin.Context)
+	UpdatePassword(*gin.Context)
+	DeleteUser(*gin.Context)
 	Login(*gin.Context)
+	Me(*gin.Context)
+	UpdateMyPassword(*gin.Context)
 }
 
-type userHandler struct {
-	userUsecase usecase.UserUsecase
+func (u *userHandler) Me(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	userResponse := &res.GetAllUser{
+		Id:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+		UserRole:    user.UserRole,
+	}
+
+	helper.Response(c, http.StatusOK, "OK", userResponse)
 }
 
-func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
-	return &userHandler{userUsecase}
-}
+func (u *userHandler) UpdateMyPassword(c *gin.Context) {
 
-func (u *userHandler) InsertUser(c *gin.Context) {
-	var user req.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	userPassword := &req.UpdatedPassword{
+		Id:       user.ID,
+		Password: user.Password,
+	}
+
+	if err := c.ShouldBindJSON(&userPassword); err != nil {
+		helper.Response(c, http.StatusBadRequest, "password is required!", nil)
 		return
 	}
 
-	// userInDb, err := u.userUsecase.FindUserByUsername(user.Username)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	userPassword.Password = utility.Encrypt(userPassword.Password)
 
-	// if userInDb != nil {
-	// 	c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
-	// 	return
-	// }
-
-	user.Password = utility.Encrypt(user.Password)
-
-	result, err := u.userUsecase.InsertUser(&user)
+	_, err := u.userUsecase.UpdatePassword(userPassword)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			// Handle validation errors
+			validationErrors := make(map[string]string)
+
+			for _, e := range validationErrs {
+				validationErrors[e.Field()] = e.Tag()
+			}
+
+			helper.Response(c, http.StatusBadRequest, "Validation error", validationErrors)
+			return
+		}
+
+		helper.Response(c, http.StatusInternalServerError, "Failed to update password", nil)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": result})
-}
-
-func (u *userHandler) FindUserByUsername(c *gin.Context) {
-	username := c.Query("username")
-
-	result, err := u.userUsecase.FindUserByUsername(username)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(200, gin.H{"data": result})
-}
-
-func (u *userHandler) Login(c *gin.Context) {
-	var user entity.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	userIndDb, err := u.userUsecase.FindUserByUsername(user.Username)
-
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credential"})
-		return
-	}
-
-	if user.Username != userIndDb.Username && user.Password != userIndDb.Password {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	secretKey := utility.GetEnv("SECRET_KEY")
-	expireTmeInt, err := strconv.Atoi(utility.GetEnv("TOKEN_EXPIRE_TIME_IN_MINUTES"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	expireAt := time.Now().Add(time.Minute * time.Duration(expireTmeInt))
-
-	tokenString, err := jwt.GenerateToken(int64(user.Id), expireAt, []byte(secretKey))
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
-
+	helper.Response(c, http.StatusOK, "Sucessfully update password", nil)
 }

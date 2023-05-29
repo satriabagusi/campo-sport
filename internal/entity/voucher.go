@@ -12,9 +12,9 @@ import "time"
 
 type Voucher struct {
 	Id          int       `json:"id"`
-	VoucherCode string    `json:"voucher_code"`
+	VoucherCode string    `json:"voucher_code"  validate:"required"`
 	IsAvailable bool      `json:"is_available"`
-	Discount    float32   `json:"discount"`
+	Discount    float32   `json:"discount"  validate:"required,numeric"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

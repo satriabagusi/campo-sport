@@ -72,14 +72,14 @@ func (r *voucherRepository) DeleteVoucher(voucher *entity.Voucher) error {
 }
 func (r *voucherRepository) FindVoucherById(id int) (*entity.Voucher, error) {
 	var voucher entity.Voucher
-	stmtm, err := r.db.Prepare("SELECT voucher_code, is_available, discount FROM vouchers WHERE id = $1")
+	stmtm, err := r.db.Prepare("SELECT id, voucher_code, is_available, discount FROM vouchers WHERE id = $1")
 	if err != nil {
 		return nil, err
 	}
 
 	defer stmtm.Close()
 	row := stmtm.QueryRow(id)
-	err = row.Scan(&voucher.VoucherCode, &voucher.IsAvailable, &voucher.Discount)
+	err = row.Scan(&voucher.Id, &voucher.VoucherCode, &voucher.IsAvailable, &voucher.Discount)
 	if err != nil {
 		return nil, err
 	}

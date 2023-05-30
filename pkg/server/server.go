@@ -35,6 +35,8 @@ func (s *Server) Initialize(connstr string) error {
 
 	//initialize repo
 	userRepo := repository.NewUserRepository(db)
+	userTopUpRepo := repository.NewUserTopUpRepository(db)
+
 	courtRepo := repository.NewCourtRepository(db)
 	bookingRepo := repository.NewBookingRepository(db)
 	voucherRepo := repository.NewVoucherRepository(db)
@@ -47,10 +49,13 @@ func (s *Server) Initialize(connstr string) error {
 	voucherUsecase := usecase.NewVoucherUsecase(voucherRepo, validator)
 	userDetailUsecase := usecase.NewUserDetailUsecase(userDetailRepo)
 
+	userTopUpUsecase := usecase.NewUserTopUpUsecase(userTopUpRepo)
+
 	//setup router
 	r := gin.Default()
 	api := r.Group("/api/v1")
 	router.NewUserRouter(api, userUsecase)
+	router.NewUserTopUpRouter(api, userTopUpUsecase)
 	router.NewCourtRouter(api, courtUsecase)
 	router.NewBookingRouter(api, bookingUsecase)
 	router.NewVoucherRouter(api, voucherUsecase)

@@ -30,12 +30,17 @@ type UserHandler interface {
 func (u *userHandler) Me(c *gin.Context) {
 	user := c.MustGet("userinfo").(*token.MyCustomClaims)
 
-	userResponse := &res.GetAllUser{
+	userId := user.ID
+
+	result, _ := u.userUsecase.FindUserDetailById(userId)
+
+	userResponse := &res.GetUserProfile{
 		Id:          user.ID,
 		Username:    user.Username,
 		Email:       user.Email,
 		PhoneNumber: user.PhoneNumber,
 		UserRole:    user.UserRole,
+		Detail:      result,
 	}
 
 	helper.Response(c, http.StatusOK, "OK", userResponse)
@@ -79,6 +84,12 @@ func (u *userHandler) UpdateMyPassword(c *gin.Context) {
 }
 
 func (h *userHandler) AdminGetAllUsers(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
 	result, err := h.userUsecase.AdminGetAllUsers()
 	if err != nil {
 		helper.Response(c, http.StatusInternalServerError, "Failed to get data", nil)

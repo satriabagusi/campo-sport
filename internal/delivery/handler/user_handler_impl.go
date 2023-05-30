@@ -52,6 +52,7 @@ func (u *userHandler) InsertUser(c *gin.Context) {
 			return
 		}
 
+		log.Println(err)
 		helper.Response(c, http.StatusInternalServerError, "Failed to register!", nil)
 		return
 	}
@@ -92,6 +93,12 @@ func (u *userHandler) UpdateUser(c *gin.Context) {
 }
 
 func (u *userHandler) DeleteUser(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	if user.UserRole != 1 {
+		helper.Response(c, http.StatusUnauthorized, "Unauthorized", nil)
+		return
+	}
 	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
@@ -182,6 +189,7 @@ func (u *userHandler) Login(c *gin.Context) {
 	var user res.GetUserByUsername
 	userInDb, err := u.userUsecase.FindUserByUsernameLogin(login.Username)
 	if err != nil {
+		log.Println("Username: ", login.Username, " | Password: ", login.Password)
 		helper.Response(c, http.StatusNotFound, "username or password are wrong", nil)
 		return
 	}

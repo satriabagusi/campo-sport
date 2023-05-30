@@ -9,6 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/midtrans/midtrans-go v1.3.6
 	github.com/stretchr/testify v1.8.3
 	golang.org/x/crypto v0.9.0
 )
@@ -31,7 +32,7 @@ require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.14.0 // indirect
+	github.com/go-playground/validator/v10 v10.14.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

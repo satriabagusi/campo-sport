@@ -8,12 +8,20 @@ Modified: !date!
 
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/midtrans/midtrans-go/coreapi"
+)
 
 type UserTopUp struct {
-	Id            int           `json:"id"`
-	User          User          `json:"user"`
-	PaymentMethod PaymentMethod `json:"payment_method"`
-	CreatedAt     time.Time     `json:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at"`
+	Id                int                    `json:"id"`
+	User              User                   `json:"user"`
+	PaymentMethod     PaymentMethod          `json:"payment_method"`
+	OrderNumber       string                 `json:"order_number"`
+	Amount            int                    `json:"amount"`
+	MidtransRes       coreapi.ChargeResponse `json:"midtrans_response"`
+	TransactionStatus TransactionStatus      `json:"transaction_status"`
+	CreatedAt         time.Time              `json:"created_at"`
+	UpdatedAt         time.Time              `json:"updated_at"`
 }

@@ -21,6 +21,8 @@ type UserRepository interface {
 	FindUserByUsernameLogin(string) (*entity.User, error)
 	FindUserDetailById(int) (res.UserDetail, error)
 	UpdatePassword(*req.UpdatedPassword) (*req.UpdatedPassword, error)
+	GetAllTopupHistory(id int) ([]res.UserTopUp, error)
+	GetAllBookingHistory(id int) ([]res.BookingHistory, error)
 }
 
 type userRepository struct {
@@ -157,6 +159,30 @@ func (r *userRepository) GetAllUsers() ([]res.GetAllUser, error) {
 	return users, nil
 }
 
+func (r *userRepository) AdminGetAllUsers() ([]res.AdminGetAllUser, error) {
+	var users []res.AdminGetAllUser
+	rows, err := r.db.Query(`SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified , 
+	u.is_deleted, ud.credential_proof
+	FROM users as u JOIN user_roles as r ON u.role_id = r.id 
+	JOIN user_details as ud ON ud.user_id = u.id;`)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var user res.AdminGetAllUser
+		err := rows.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.UserRole, &user.IsVerified, &user.IsDeleted, &user.CredentialProof)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (r *userRepository) UpdatePassword(updatedUser *req.UpdatedPassword) (*req.UpdatedPassword, error) {
 	stmt, err := r.db.Prepare("UPDATE users SET password =$2 WHERE id = $1")
 	if err != nil {
@@ -185,30 +211,6 @@ func (r *userRepository) UpdateUserStatus(updateStatus *req.UpdatedStatusUser) (
 	return updateStatus, nil
 }
 
-func (r *userRepository) AdminGetAllUsers() ([]res.AdminGetAllUser, error) {
-	var users []res.AdminGetAllUser
-	rows, err := r.db.Query(`SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified , 
-	u.is_deleted, ud.credential_proof
-	FROM users as u JOIN user_roles as r ON u.role_id = r.id 
-	JOIN user_details as ud ON ud.user_id = u.id;`)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var user res.AdminGetAllUser
-		err := rows.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.UserRole, &user.IsVerified, &user.IsDeleted, &user.CredentialProof)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	return users, nil
-}
-
 func (r *userRepository) FindUserDetailById(id int) (res.UserDetail, error) {
 	var user res.UserDetail
 	stmtm, err := r.db.Prepare(`SELECT credential_proof, balance 
@@ -225,4 +227,63 @@ func (r *userRepository) FindUserDetailById(id int) (res.UserDetail, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (r *userRepository) GetAllTopupHistory(id int) ([]res.UserTopUp, error) {
+	var users []res.UserTopUp
+	rows, err := r.db.Query(`Select t.order_number, u.username, t.amount,  ts.transaction_status, t.created_at, m.payment_method 
+	From user_top_ups as t JOIN users as u on u.id = t.user_id
+	Join transaction_status as ts on ts.id = t.transaction_status_id 
+	join payment_methods as m on m.id = t.payment_method_id
+	where t.user_id = $1;`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	// err = row.Scan(&user.OrderNumber, &user.Username, &user.Amount, &user.TransactionStatus, &user.CreatedAt, &user.PaymentMethod)
+	for rows.Next() {
+		var user res.UserTopUp
+		err := rows.Scan(&user.OrderNumber, &user.Username, &user.Amount, &user.TransactionStatus, &user.CreatedAt, &user.PaymentMethod)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (r *userRepository) GetAllBookingHistory(id int) ([]res.BookingHistory, error) {
+	var users []res.BookingHistory
+	rows, err := r.db.Query(`SELECT b.booking_number, u.username, b.total_transaction, v.voucher_code ,  ts.transaction_status, 
+	c.court_name , m.payment_method, b.created_at
+	From bookings as b JOIN users as u on u.id = b.user_id
+	Join transaction_status as ts on ts.id = b.transaction_status_id 
+	join payment_methods as m on m.id = b.payment_method_id
+	Join courts as c on c.id = b.court_id
+	Join vouchers as v on v.id = b.voucher_id
+	where b.user_id = $1;`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	// err = row.Scan(&user.OrderNumber, &user.Username, &user.Amount, &user.TransactionStatus, &user.CreatedAt, &user.PaymentMethod)
+	for rows.Next() {
+		var user res.BookingHistory
+		err := rows.Scan(&user.BookingNumber, &user.Username, &user.TotalTransaction, &user.VoucherCode, &user.TransactionStatus, &user.CourtName, &user.PaymentMethod, &user.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

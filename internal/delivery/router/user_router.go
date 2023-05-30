@@ -25,6 +25,8 @@ func (u *UserRouter) SetupRouter() {
 		users.GET("/email", u.userHandler.FindUserByEmail)
 		users.GET("/username", u.userHandler.FindUserByUsername)
 		users.GET("/", u.userHandler.GetAllUsers)
+		users.GET("/topup", u.userHandler.GetAllTopupHistory)
+		users.GET("/bookinghistory", u.userHandler.GetAllBookingHistory)
 	}
 
 	admin := u.publicRoute.Group("/admin")

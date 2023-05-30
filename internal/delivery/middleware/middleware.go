@@ -19,13 +19,13 @@ func Auth() gin.HandlerFunc {
 
 		user, err := token.ValidateToken(accessToken)
 		if err != nil {
+
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
 			c.Abort()
 			return
 		}
 
 		c.Set("userinfo", user)
-
 		c.Next()
 	}
 }

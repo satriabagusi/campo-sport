@@ -25,7 +25,7 @@ func (r *UserTopUpRouter) SetupRouter() {
 	r.publicRoute.GET("check", r.userTopUpHandler.CheckBalance)
 	// r.publicRoute.POST("withdraw", r.userTopUpHandler.WithdrawBalance)
 
-	usersTopUpBalance := r.publicRoute.Group("/user/balance")
+	usersTopUpBalance := r.publicRoute.Group("/balance")
 	{
 		usersTopUpBalance.Use(middleware.Auth())
 		usersTopUpBalance.POST("/top-up", r.userTopUpHandler.TopUpBalance)

@@ -115,12 +115,12 @@ type UserTopUp struct {
 }
 
 type BookingHistory struct {
-	BookingNumber     string `json:"booking_number"`
-	Username          string `json:"username"`
-	CourtName         string `json:"court_name"`
-	TotalTransaction  int    `json:"total_transaction"`
-	VoucherCode       string `json:"voucher_code"`
-	PaymentMethod     string `json:"payment_method"`
-	TransactionStatus string `json:"transaction_status"`
-	CreatedAt         any    `json:"created_at"`
+	BookingNumber     string  `json:"booking_number"`
+	Username          string  `json:"username"`
+	CourtName         string  `json:"court_name"`
+	TotalTransaction  float64 `json:"total_transaction"`
+	VoucherCode       string  `json:"voucher_code"`
+	PaymentMethod     string  `json:"payment_method"`
+	TransactionStatus string  `json:"transaction_status"`
+	CreatedAt         any     `json:"created_at"`
 }

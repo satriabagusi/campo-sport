@@ -18,6 +18,7 @@ import (
 type UserTopUpUsecase interface {
 	TopUpBalance(newTopUp *entity.UserTopUp) (*entity.UserTopUp, error)
 	CheckBalance(orderNumber string) (*entity.UserDetail, error)
+	WithdrawBalance(withdrawUser *entity.UserWithdraw) (*entity.UserDetail, error)
 }
 
 type userTopUpUsecase struct {
@@ -34,6 +35,14 @@ func (u *userTopUpUsecase) TopUpBalance(newTopUp *entity.UserTopUp) (*entity.Use
 
 func (u *userTopUpUsecase) CheckBalance(orderNumber string) (*entity.UserDetail, error) {
 	return u.userTopUpRepo.CheckBalance(orderNumber)
+}
+
+func (u *userTopUpUsecase) WithdrawBalance(withdrawUser *entity.UserWithdraw) (*entity.UserDetail, error) {
+	if withdrawUser.Amount == 0 {
+		return nil, errors.New("ammount to top up is 0. top up canceled")
+	}
+
+	return u.userTopUpRepo.WithdrawBalance(withdrawUser)
 }
 
 func NewUserTopUpUsecase(userTopUp repository.UserTopUpRepository) UserTopUpUsecase {

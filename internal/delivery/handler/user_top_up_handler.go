@@ -14,11 +14,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/helper"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type UserTopUpHandler interface {
 	TopUpBalance(*gin.Context)
 	CheckBalance(*gin.Context)
+	WithdrawBalance(*gin.Context)
 }
 
 type userTopUpHandler struct {
@@ -76,6 +79,43 @@ func (h *userTopUpHandler) CheckBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "Check Balance User Successfully",
+		"data":    result,
+	})
+}
+
+func (h *userTopUpHandler) WithdrawBalance(ctx *gin.Context) {
+
+	user := ctx.MustGet("userinfo").(*token.MyCustomClaims)
+	userId := user.ID
+	var userWithdraw entity.UserWithdraw
+	userWithdraw.User.Id = userId
+		if !user.IsVerified {
+			helper.Response(ctx, http.StatusBadRequest, "User not verified. Please complete the verification first", nil)
+			return
+		}
+
+	if err := ctx.ShouldBindJSON(&userWithdraw); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+			"data":    userWithdraw,
+		})
+		return
+	}
+
+	result, err := h.userTopUpUsecase.WithdrawBalance(&userWithdraw)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+			"data":    userWithdraw,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"code":    http.StatusAccepted,
+		"message": "Successfully Created Top Up Request.",
 		"data":    result,
 	})
 }

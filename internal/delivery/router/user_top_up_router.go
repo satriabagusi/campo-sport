@@ -23,12 +23,14 @@ type UserTopUpRouter struct {
 func (r *UserTopUpRouter) SetupRouter() {
 	r.publicRoute.POST("balance", r.userTopUpHandler.TopUpBalance)
 	r.publicRoute.GET("check", r.userTopUpHandler.CheckBalance)
+	// r.publicRoute.POST("withdraw", r.userTopUpHandler.WithdrawBalance)
 
 	usersTopUpBalance := r.publicRoute.Group("/user/balance")
 	{
 		usersTopUpBalance.Use(middleware.Auth())
 		usersTopUpBalance.POST("/top-up", r.userTopUpHandler.TopUpBalance)
 		usersTopUpBalance.GET("/check", r.userTopUpHandler.CheckBalance)
+		usersTopUpBalance.POST("/withdraw", r.userTopUpHandler.WithdrawBalance)
 	}
 }
 

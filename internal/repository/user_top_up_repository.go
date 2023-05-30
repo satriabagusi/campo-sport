@@ -243,6 +243,7 @@ func (r *userTopUpRepository) WithdrawBalance(withdrawUser *entity.UserWithdraw)
 
 	findUser := r.db.QueryRow(`SELECT id, username, phone_number, email, is_verified FROM users WHERE id = $1`, withdrawUser.User.Id).Scan(&withdrawUser.User.Id, &withdrawUser.User.Username, &withdrawUser.User.PhoneNumber, &withdrawUser.User.Email, &withdrawUser.User.IsVerified)
 	if findUser != nil {
+		log.Println(withdrawUser.User)
 		return nil, errors.New("User not found")
 	}
 

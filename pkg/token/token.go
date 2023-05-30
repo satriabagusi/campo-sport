@@ -10,7 +10,6 @@ import (
 	"github.com/satriabagusi/campo-sport/pkg/utility"
 )
 
-
 var (
 	mySigningKey     = []byte(utility.GetEnv("SECRET_KEY"))
 	expireTimeInt, _ = strconv.Atoi(utility.GetEnv("TOKEN_EXPIRE_TIME_IN_MINUTES"))
@@ -23,6 +22,7 @@ type MyCustomClaims struct {
 	Password    string `json:"password"`
 	PhoneNumber string `json:"phone_number"`
 	UserRole    int    `json:"user_role" default:"3"`
+	IsVerified  bool   `json:"is_verified"`
 	jwt.RegisteredClaims
 }
 
@@ -34,6 +34,7 @@ func CreateToken(user *entity.User) (string, error) {
 		user.Password,
 		user.PhoneNumber,
 		user.UserRole,
+		user.IsVerified,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireTimeInt) * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

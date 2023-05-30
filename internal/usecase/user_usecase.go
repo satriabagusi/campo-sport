@@ -17,6 +17,8 @@ type UserUsecase interface {
 	FindUserByEmail(string) (*res.GetUserByUsername, error)
 	GetAllUsers() ([]res.GetAllUser, error)
 	AdminGetAllUsers() ([]res.AdminGetAllUser, error)
+	GetAllTopupHistory(id int) ([]res.UserTopUp, error)
+	GetAllBookingHistory(id int) ([]res.BookingHistory, error)
 
 	InsertUser(user *req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
@@ -127,4 +129,12 @@ func (u *userUsecase) UpdatePassword(updatePw *req.UpdatedPassword) (*req.Update
 
 func (u *userUsecase) FindUserDetailById(id int) (res.UserDetail, error) {
 	return u.userRepository.FindUserDetailById(id)
+}
+
+func (u *userUsecase) GetAllTopupHistory(id int) ([]res.UserTopUp, error) {
+	return u.userRepository.GetAllTopupHistory(id)
+}
+
+func (u *userUsecase) GetAllBookingHistory(id int) ([]res.BookingHistory, error) {
+	return u.userRepository.GetAllBookingHistory(id)
 }

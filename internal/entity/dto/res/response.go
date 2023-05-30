@@ -61,7 +61,7 @@ type GetUserByUsername struct {
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phone_number"`
 	//CredentialProof string    `json:"credential_proof"`
-	IsVerified string    `json:"is_verified"`
+	IsVerified bool      `json:"is_verified"`
 	UserRole   string    `json:"user_role"`
 	CreatedAt  time.Time `json:"create_at"`
 }
@@ -103,4 +103,24 @@ type GetUserProfile struct {
 type UserDetail struct {
 	Balance int    `json:"balance" `
 	Url     string `json:"url_credential" `
+}
+
+type UserTopUp struct {
+	OrderNumber       string    `json:"order_number"`
+	Username          string    `json:"username"`
+	PaymentMethod     string    `json:"payment_method"`
+	Amount            int       `json:"amount"`
+	TransactionStatus string    `json:"transaction_status"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
+type BookingHistory struct {
+	BookingNumber     string `json:"booking_number"`
+	Username          string `json:"username"`
+	CourtName         string `json:"court_name"`
+	TotalTransaction  int    `json:"total_transaction"`
+	VoucherCode       string `json:"voucher_code"`
+	PaymentMethod     string `json:"payment_method"`
+	TransactionStatus string `json:"transaction_status"`
+	CreatedAt         any    `json:"created_at"`
 }

@@ -17,6 +17,7 @@ type User struct {
 	Email       string    `json:"email"`
 	PhoneNumber string    `json:"phone_number"`
 	UserRole    int       `json:"user_role"`
+	IsVerified  bool      `json:"is_verified"`
 	CreatedAt   time.Time `json:"create_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

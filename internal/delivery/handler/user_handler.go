@@ -25,6 +25,8 @@ type UserHandler interface {
 	Me(*gin.Context)
 	UpdateMyPassword(*gin.Context)
 	AdminGetAllUsers(*gin.Context)
+	GetAllTopupHistory(*gin.Context)
+	GetAllBookingHistory(*gin.Context)
 }
 
 func (u *userHandler) Me(c *gin.Context) {
@@ -98,4 +100,32 @@ func (h *userHandler) AdminGetAllUsers(c *gin.Context) {
 
 	helper.Response(c, http.StatusOK, "OK", result)
 
+}
+
+func (u *userHandler) GetAllTopupHistory(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	userId := user.ID
+
+	result, err := u.userUsecase.GetAllTopupHistory(userId)
+	if err != nil {
+		helper.Response(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	helper.Response(c, http.StatusOK, "OK", result)
+}
+
+func (u *userHandler) GetAllBookingHistory(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+
+	userId := user.ID
+
+	result, err := u.userUsecase.GetAllBookingHistory(userId)
+	if err != nil {
+		helper.Response(c, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	helper.Response(c, http.StatusOK, "OK", result)
 }

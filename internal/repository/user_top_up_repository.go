@@ -23,6 +23,7 @@ import (
 type UserTopUpRepository interface {
 	TopUpBalance(newTopUp *entity.UserTopUp) (*entity.UserTopUp, error)
 	CheckBalance(orderNumber string) (*entity.UserDetail, error)
+	WithdrawBalance(withdrawUser *entity.UserTopUp) (*entity.UserDetail, error)
 }
 
 type userTopUpRepository struct {
@@ -232,4 +233,8 @@ func (r *userTopUpRepository) CheckBalance(orderNumber string) (*entity.UserDeta
 	}
 
 	return &userDetail, nil
+}
+
+func (r *userTopUpRepository) WithdrawBalance(withdrawUser *entity.UserTopUp) (*entity.UserDetail, error) {
+	return nil, nil
 }

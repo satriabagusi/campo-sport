@@ -83,7 +83,6 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 	//find court price to calculate total booking
 	fCourt, err := r.db.Prepare(`SELECT court_name, court_price FROM courts WHERE id = $1 AND is_available = true`)
 	if err != nil {
-		log.Println("Error getting court price")
 		return nil, err
 	}
 	defer fCourt.Close()

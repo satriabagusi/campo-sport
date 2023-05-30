@@ -16,6 +16,7 @@ type User struct {
 	Password    string    `json:"password" validate:"required"`
 	Email       string    `json:"email"`
 	PhoneNumber string    `json:"phone_number"`
+	IsVerified  bool      `json:"is_verified"`
 	UserRole    int       `json:"user_role"`
 	CreatedAt   time.Time `json:"create_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

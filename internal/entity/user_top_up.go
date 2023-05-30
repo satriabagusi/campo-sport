@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/midtrans/midtrans-go/coreapi"
+	"github.com/midtrans/midtrans-go/iris"
 )
 
 type UserTopUp struct {
@@ -24,4 +25,17 @@ type UserTopUp struct {
 	TransactionStatus TransactionStatus      `json:"transaction_status"`
 	CreatedAt         time.Time              `json:"created_at"`
 	UpdatedAt         time.Time              `json:"updated_at"`
+}
+
+type UserWithdraw struct {
+	Id                int64                     `json:"id"`
+	User              User                      `json:"user"`
+	OrderNumber       string                    `json:"order_number"`
+	Amount            int                       `json:"amount"`
+	PayoutMidtransRes iris.PayoutDetailResponse `json:"withdraw_midtrans_response"`
+	BankAccount       string                    `json:"bank_account"`
+	BankName          string                    `json:"bank_name"`
+	Notes             string                    `json:"notes"`
+	CreatedAt         time.Time                 `json:"created_at"`
+	UpdatedAt         time.Time                 `json:"updated_at"`
 }

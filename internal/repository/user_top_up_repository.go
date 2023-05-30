@@ -10,6 +10,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -17,13 +18,14 @@ import (
 
 	"github.com/midtrans/midtrans-go"
 	"github.com/midtrans/midtrans-go/coreapi"
+	"github.com/midtrans/midtrans-go/iris"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 )
 
 type UserTopUpRepository interface {
 	TopUpBalance(newTopUp *entity.UserTopUp) (*entity.UserTopUp, error)
 	CheckBalance(orderNumber string) (*entity.UserDetail, error)
-	WithdrawBalance(withdrawUser *entity.UserTopUp) (*entity.UserDetail, error)
+	WithdrawBalance(withdrawUser *entity.UserWithdraw) (*entity.UserDetail, error)
 }
 
 type userTopUpRepository struct {
@@ -236,6 +238,62 @@ func (r *userTopUpRepository) CheckBalance(orderNumber string) (*entity.UserDeta
 	return &userDetail, nil
 }
 
-func (r *userTopUpRepository) WithdrawBalance(withdrawUser *entity.UserTopUp) (*entity.UserDetail, error) {
-	return nil, nil
+func (r *userTopUpRepository) WithdrawBalance(withdrawUser *entity.UserWithdraw) (*entity.UserDetail, error) {
+	var userDetail entity.UserDetail
+
+	findUser := r.db.QueryRow(`SELECT id, username, phone_number, email, is_verified FROM users WHERE id = $1`, withdrawUser.User.Id).Scan(&withdrawUser.User.Id, &withdrawUser.User.Username, &withdrawUser.User.PhoneNumber, &withdrawUser.User.Email, &withdrawUser.User.IsVerified)
+	if findUser != nil {
+		return nil, errors.New("User not found")
+	}
+
+	if !withdrawUser.User.IsVerified {
+		return nil, errors.New("User status is not verified. Please upload your identification and wait for admin to verified your account")
+	}
+
+	findUserDetail := r.db.QueryRow(`SELECT id, user_id, balance FROM user_details WHERE user_id = $1`).Scan(&userDetail.Id, &userDetail.User.Id, &userDetail.Balance)
+
+	if findUserDetail != nil {
+		return nil, errors.New("find user detail failed")
+	}
+
+	if userDetail.Balance < float32(withdrawUser.Amount) {
+		return nil, errors.New("Balance is insufficient to withdraw")
+	}
+
+	midtransRes := &iris.PayoutDetailResponse{
+		Amount:             string(withdrawUser.Amount),
+		BeneficiaryName:    withdrawUser.BankName,
+		BeneficiaryAccount: withdrawUser.BankAccount,
+		Bank:               withdrawUser.BankName,
+		ReferenceNo:        string(rand.Intn(9999)),
+		Notes:              withdrawUser.Notes,
+		BeneficiaryEmail:   string(""),
+		Status:             string("201"),
+		CreatedBy:          withdrawUser.User.Username,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
+		ErrorMessage:       string(""),
+		Errors:             string(""),
+	}
+
+	log.Println(midtransRes)
+
+	updateBalance := userDetail.Balance - float32(withdrawUser.Amount)
+
+	setBalance, err := r.db.Prepare(`UPDATE user_details SET balance = $1 WHERE user_id = $2`)
+
+	if err != nil {
+		return nil, err
+	}
+	defer setBalance.Close()
+
+	_, err = setBalance.Exec(updateBalance, userDetail.User.Id)
+
+	if err != nil {
+		log.Println("Failed to update user balance")
+		return nil, err
+	}
+
+	return &userDetail, nil
+
 }

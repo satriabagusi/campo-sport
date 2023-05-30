@@ -70,6 +70,8 @@ func (u *userUsecase) InsertUser(user *req.User) (*res.User, error) {
 		Email:       user.Email,
 		PhoneNumber: user.PhoneNumber,
 	}, nil
+
+	
 }
 
 func (u *userUsecase) FindUserByUsername(username string) (*res.GetUserByUsername, error) {

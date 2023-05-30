@@ -81,15 +81,20 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 	defer stmt.Close()
 
 	//find court price to calculate total booking
-	fCourt, err := r.db.Prepare(`SELECT court_name, court_price FROM courts WHERE id = $1 AND is_available = true`)
+	fCourt, err := r.db.Prepare(`SELECT court_name, court_price, is_available FROM courts WHERE id = $1`)
 	if err != nil {
 		return nil, err
 	}
 	defer fCourt.Close()
 	fCourtRow := fCourt.QueryRow(newBooking.Court.Id)
-	err = fCourtRow.Scan(&newBooking.Court.CourtName, &newBooking.Court.CourtPrice)
+	err = fCourtRow.Scan(&newBooking.Court.CourtName, &newBooking.Court.CourtPrice, &newBooking.Court.IsAvailable)
 	if err != nil {
+		log.Println("court is not found")
 		return nil, err
+	}
+
+	if !newBooking.Court.IsAvailable {
+		return nil, errors.New("court is not available")
 	}
 
 	t1 := newBooking.BookingDetail.StartTime
@@ -98,17 +103,21 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 
 	newBooking.TotalTransaction = newBooking.Court.CourtPrice * float32(totalHour)
 
-	if newBooking.Voucher.Id != 0 {
-		fVoucher, err := r.db.Prepare(`SELECT voucher_code, discount FROM vouchers WHERE id = $1 AND is_available = true`)
+	if newBooking.Voucher.VoucherCode != "" {
+		fVoucher, err := r.db.Prepare(`SELECT id, discount, is_available FROM vouchers WHERE voucher_code = $1`)
 		if err != nil {
 			log.Println("Error getting court voucher details")
 			return nil, err
 		}
 		defer fVoucher.Close()
-		fVoucherRow := fVoucher.QueryRow(newBooking.Voucher.Id)
-		err = fVoucherRow.Scan(&newBooking.Voucher.VoucherCode, &newBooking.Voucher.Discount)
+		fVoucherRow := fVoucher.QueryRow(newBooking.Voucher.VoucherCode)
+		err = fVoucherRow.Scan(&newBooking.Voucher.Id, &newBooking.Voucher.Discount, &newBooking.Voucher.IsAvailable)
 		if err != nil {
+			log.Println("voucher is not found")
 			return nil, err
+		}
+		if !newBooking.Voucher.IsAvailable {
+			return nil, errors.New("voucher is not available")
 		}
 
 		newBooking.TotalTransaction = newBooking.TotalTransaction - newBooking.Voucher.Discount
@@ -128,8 +137,44 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 
 		coreApiRes, _ := coreapi.ChargeTransaction(chargeReq)
 		newBooking.MidtransResponse = *coreApiRes
+		newBooking.TransactionStatus.Id = 1
+	} else if newBooking.PaymentMethod.Id == 2 {
+		var userDetail entity.UserDetail
+		fUserBalance, err := r.db.Prepare(`SELECT id, balance FROM user_details WHERE user_id = $1`)
+		if err != nil {
+			return nil, err
+		}
+		defer fUserBalance.Close()
+		fUserBalanceRow := fUserBalance.QueryRow(newBooking.User.Id)
+		err = fUserBalanceRow.Scan(&userDetail.Id, &userDetail.Balance)
+		if err != nil {
+			log.Println("User Details not Found.")
+			return nil, err
+		}
+
+		if userDetail.Balance < newBooking.TotalTransaction {
+			return nil, errors.New("insufficient balance. please top up the balance")
+		}
+
+		newBalance := userDetail.Balance - newBooking.TotalTransaction
+
+		updateBalance, err := r.db.Prepare(`UPDATE user_details SET balance = $1 WHERE user_id = $2`)
+
+		if err != nil {
+			return nil, err
+		}
+		defer updateBalance.Close()
+
+		_, err = updateBalance.Exec(newBalance, newBooking.User.Id)
+
+		if err != nil {
+			newBooking.TransactionStatus.Id = 3
+			return nil, err
+		}
+		newBooking.TransactionStatus.Id = 2
+	} else if newBooking.PaymentMethod.Id == 1 {
+		newBooking.TransactionStatus.Id = 1
 	}
-	newBooking.TransactionStatus.Id = 1
 
 	err = stmt.QueryRow(bookingNumber, newBooking.User.Id, newBooking.Court.Id, newBooking.PaymentMethod.Id, newBooking.Voucher.Id, newBooking.TotalTransaction, newBooking.TransactionStatus.Id).Scan(&newBooking.Id)
 

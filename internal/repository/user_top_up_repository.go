@@ -88,6 +88,7 @@ func (r *userTopUpRepository) TopUpBalance(newTopUp *entity.UserTopUp) (*entity.
 		coreApiRes, _ := coreapi.ChargeTransaction(chargeReq)
 
 		newTopUp.MidtransRes = *coreApiRes
+		newTopUp.TransactionStatus.Id = 1
 
 		_, err := stmt.Exec(newTopUp.User.Id, newTopUp.PaymentMethod.Id, newTopUp.OrderNumber, newTopUp.Amount, newTopUp.TransactionStatus.Id, newTopUp.CreatedAt, newTopUp.UpdatedAt)
 

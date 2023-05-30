@@ -15,9 +15,11 @@ type UserRepository interface {
 	FindUserById(int) (*res.GetUserByID, error)
 	FindUserByEmail(string) (*res.GetUserByUsername, error)
 	GetAllUsers() ([]res.GetAllUser, error)
+	AdminGetAllUsers() ([]res.AdminGetAllUser, error)
 	InsertUser(*req.User) (*res.User, error)
 	FindUserByUsername(string) (*res.GetUserByUsername, error)
 	FindUserByUsernameLogin(string) (*entity.User, error)
+	FindUserDetailById(int) (res.UserDetail, error)
 	UpdatePassword(*req.UpdatedPassword) (*req.UpdatedPassword, error)
 }
 
@@ -55,7 +57,6 @@ func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUser
 	stmt, err := r.db.Prepare(`SELECT u.id, u.username, u.phone_number, u.email,  r.role_name, u.is_verified, u.created_at
 	FROM users AS u
 	JOIN user_roles AS r ON u.role_id = r.id
-
 	WHERE u.username = $1 AND u.is_deleted = false;`)
 	if err != nil {
 		return nil, err
@@ -182,4 +183,46 @@ func (r *userRepository) UpdateUserStatus(updateStatus *req.UpdatedStatusUser) (
 		return nil, err
 	}
 	return updateStatus, nil
+}
+
+func (r *userRepository) AdminGetAllUsers() ([]res.AdminGetAllUser, error) {
+	var users []res.AdminGetAllUser
+	rows, err := r.db.Query(`SELECT u.id, u.username, u.phone_number, u.email, r.role_name, u.is_verified , 
+	u.is_deleted, ud.credential_proof
+	FROM users as u JOIN user_roles as r ON u.role_id = r.id 
+	JOIN user_details as ud ON ud.user_id = u.id;`)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var user res.AdminGetAllUser
+		err := rows.Scan(&user.Id, &user.Username, &user.PhoneNumber, &user.Email, &user.UserRole, &user.IsVerified, &user.IsDeleted, &user.CredentialProof)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (r *userRepository) FindUserDetailById(id int) (res.UserDetail, error) {
+	var user res.UserDetail
+	stmtm, err := r.db.Prepare(`SELECT credential_proof, balance 
+	FROM user_details JOIN users ON user_details.user_id = users.id 	
+	WHERE users.id = $1;`)
+	if err != nil {
+		return user, err
+	}
+	log.Println(id)
+	defer stmtm.Close()
+	row := stmtm.QueryRow(id)
+	err = row.Scan(&user.Url, &user.Balance)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }

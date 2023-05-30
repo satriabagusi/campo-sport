@@ -31,6 +31,19 @@ type GetAllUser struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+type AdminGetAllUser struct {
+	Id              int       `json:"id"`
+	Username        string    `json:"username"`
+	Email           string    `json:"email"`
+	PhoneNumber     string    `json:"phone_number"`
+	IsVerified      bool      `json:"is_verified"`
+	CreatedAt       time.Time `json:"create_at"`
+	CredentialProof any       `json:"credential_proof"`
+	UserRole        string    `json:"user_role"`
+	IsDeleted       bool      `json:"is_deleted"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
 type GetUserByID struct {
 	Id              int    `json:"id"`
 	Username        string `json:"username"`
@@ -73,4 +86,21 @@ type LoginUserResponse struct {
 	RefreshToken          string     `json:"refresh_token"`
 	RefreshTokenExpiresAt time.Time  `json:"refresh_token_expires_at"`
 	User                  GetAllUser `json:"user"`
+}
+
+type GetUserProfile struct {
+	Id          int        `json:"id"`
+	Username    string     `json:"username"`
+	Email       string     `json:"email"`
+	PhoneNumber string     `json:"phone_number"`
+	IsVerified  bool       `json:"is_verified"`
+	CreatedAt   time.Time  `json:"create_at"`
+	UserRole    int        `json:"role_id"`
+	Detail      UserDetail `json:"user_detail"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+type UserDetail struct {
+	Balance int    `json:"balance" `
+	Url     string `json:"url_credential" `
 }

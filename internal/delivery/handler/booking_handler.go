@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
+	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type BookingHandler interface {
@@ -42,7 +43,11 @@ func (h *bookingHandler) GetAllBooking(c *gin.Context) {
 }
 
 func (h *bookingHandler) CreateBooking(c *gin.Context) {
+	user := c.MustGet("userinfo").(*token.MyCustomClaims)
+	userId := user.ID
+
 	var booking entity.Booking
+	booking.User.Id = userId
 
 	if err := c.ShouldBindJSON(&booking); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

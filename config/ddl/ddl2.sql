@@ -189,3 +189,10 @@ ALTER COLUMN created_at SET DEFAULT current_timestamp;
 
 ALTER TABLE user_details
 ALTER COLUMN updated_at SET DEFAULT current_timestamp;
+
+
+CREATE SEQUENCE booking_id_seq;
+ALTER TABLE bookings ALTER COLUMN id SET DEFAULT nextval('booking_id_seq'::regclass);
+
+CREATE SEQUENCE booking_detail_id_seq;
+ALTER TABLE booking_details ALTER COLUMN id_detail SET DEFAULT nextval('booking_detail_id_seq'::regclass);

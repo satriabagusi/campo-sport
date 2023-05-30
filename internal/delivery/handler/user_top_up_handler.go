@@ -38,11 +38,6 @@ func (h *userTopUpHandler) TopUpBalance(ctx *gin.Context) {
 	var userTopUp entity.UserTopUp
 	userTopUp.User.Id = userId
 
-	if !user.IsVerified {
-		helper.Response(ctx, http.StatusBadRequest, "User not verified. Please complete the verification process.", nil)
-		return
-	}
-
 	if err := ctx.ShouldBindJSON(&userTopUp); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
@@ -94,10 +89,10 @@ func (h *userTopUpHandler) WithdrawBalance(ctx *gin.Context) {
 	userId := user.ID
 	var userWithdraw entity.UserWithdraw
 	userWithdraw.User.Id = userId
-		if !user.IsVerified {
-			helper.Response(ctx, http.StatusBadRequest, "User not verified. Please complete the verification first", nil)
-			return
-		}
+	if !user.IsVerified {
+		helper.Response(ctx, http.StatusBadRequest, "User not verified. Please complete the verification first", nil)
+		return
+	}
 
 	if err := ctx.ShouldBindJSON(&userWithdraw); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

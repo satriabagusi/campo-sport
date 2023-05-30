@@ -56,15 +56,7 @@ func (r *userTopUpRepository) TopUpBalance(newTopUp *entity.UserTopUp) (*entity.
 	findPaymentMethod := r.db.QueryRow(`SELECT payment_method FROM payment_methods WHERE id = $1`, newTopUp.PaymentMethod.Id).Scan(&newTopUp.PaymentMethod.PaymentMethod)
 
 	if findPaymentMethod != nil {
-		log.Println("Error find PaymentMethod")
-		return nil, err
-	}
-
-	findTransactionStatus := r.db.QueryRow(`SELECT transaction_status FROM transaction_status WHERE id = $1`, newTopUp.TransactionStatus.Id).Scan(&newTopUp.TransactionStatus.TransactionStatus)
-
-	if findTransactionStatus != nil {
-		log.Println("Error find TransactionStatus")
-		log.Println(findTransactionStatus)
+		log.Println(err)
 		return nil, err
 	}
 
@@ -244,29 +236,31 @@ func (r *userTopUpRepository) WithdrawBalance(withdrawUser *entity.UserWithdraw)
 	findUser := r.db.QueryRow(`SELECT id, username, phone_number, email, is_verified FROM users WHERE id = $1`, withdrawUser.User.Id).Scan(&withdrawUser.User.Id, &withdrawUser.User.Username, &withdrawUser.User.PhoneNumber, &withdrawUser.User.Email, &withdrawUser.User.IsVerified)
 	if findUser != nil {
 		log.Println(withdrawUser.User)
-		return nil, errors.New("User not found")
+		return nil, errors.New("user not found")
 	}
 
 	if !withdrawUser.User.IsVerified {
-		return nil, errors.New("User status is not verified. Please upload your identification and wait for admin to verified your account")
+		return nil, errors.New("user status is not verified. Please upload your identification and wait for admin to verified your account")
 	}
 
-	findUserDetail := r.db.QueryRow(`SELECT id, user_id, balance FROM user_details WHERE user_id = $1`).Scan(&userDetail.Id, &userDetail.User.Id, &userDetail.Balance)
+	findUserDetail := r.db.QueryRow(`SELECT id, balance FROM user_details WHERE user_id = $1`, withdrawUser.User.Id).Scan(&userDetail.Id, &userDetail.Balance)
+
+	log.Println("User ID : ", withdrawUser.User.Id)
 
 	if findUserDetail != nil {
 		return nil, errors.New("find user detail failed")
 	}
 
 	if userDetail.Balance < float32(withdrawUser.Amount) {
-		return nil, errors.New("Balance is insufficient to withdraw")
+		return nil, errors.New("balance is insufficient to withdraw")
 	}
 
 	midtransRes := &iris.PayoutDetailResponse{
-		Amount:             string(withdrawUser.Amount),
+		Amount:             fmt.Sprint(withdrawUser.Amount),
 		BeneficiaryName:    withdrawUser.BankName,
 		BeneficiaryAccount: withdrawUser.BankAccount,
 		Bank:               withdrawUser.BankName,
-		ReferenceNo:        string(rand.Intn(9999)),
+		ReferenceNo:        fmt.Sprint(rand.Intn(9999)),
 		Notes:              withdrawUser.Notes,
 		BeneficiaryEmail:   string(""),
 		Status:             string("201"),

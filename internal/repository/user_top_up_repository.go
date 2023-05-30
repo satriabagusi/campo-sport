@@ -161,14 +161,14 @@ func (r *userTopUpRepository) CheckBalance(orderNumber string) (*entity.UserDeta
 
 			log.Println("Top Up ammount : ", userTopUp.Amount)
 			log.Println("Last Balance After Update: ", topUpBalance)
-			updateBalance, err := r.db.Prepare(`UPDATE user_details SET balance = $1`)
+			updateBalance, err := r.db.Prepare(`UPDATE user_details SET balance = $1 WHERE user_id = $2;`)
 
 			if err != nil {
 				return nil, err
 			}
 			defer updateBalance.Close()
 
-			_, err = updateBalance.Exec(topUpBalance)
+			_, err = updateBalance.Exec(topUpBalance, userTopUp.User.Id)
 
 			if err != nil {
 				log.Println("Failed to update user balance")

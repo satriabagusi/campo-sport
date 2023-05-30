@@ -16,6 +16,7 @@ func (b *BookingRouter) SetupRouter() {
 	courts := b.publicRoute.Group("/booking")
 	{
 		courts.Use(middleware.Auth())
+		courts.GET("/", b.bookingHandler.GetAllBooking)
 		courts.POST("/", b.bookingHandler.CreateBooking)
 		courts.PUT("/update", b.bookingHandler.UpdateBookingPaymentStatus)
 		courts.PATCH("/cancel", b.bookingHandler.CancelBooking)

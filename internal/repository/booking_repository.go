@@ -114,7 +114,7 @@ func (r *bookingRepository) InsertBooking(newBooking *entity.Booking) (*entity.B
 		newBooking.TotalTransaction = newBooking.TotalTransaction - newBooking.Voucher.Discount
 	}
 
-	if newBooking.PaymentMethod.Id == 2 {
+	if newBooking.PaymentMethod.Id == 3 {
 		chargeReq := &coreapi.ChargeReq{
 			PaymentType: "bank_transfer",
 			TransactionDetails: midtrans.TransactionDetails{

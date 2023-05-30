@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/satriabagusi/campo-sport/internal/entity"
 	"github.com/satriabagusi/campo-sport/internal/usecase"
-	"github.com/satriabagusi/campo-sport/pkg/token"
 )
 
 type UserTopUpHandler interface {
@@ -31,10 +30,10 @@ func NewUserTopUpHandler(userTopUpUsecase usecase.UserTopUpUsecase) UserTopUpHan
 }
 
 func (h *userTopUpHandler) TopUpBalance(ctx *gin.Context) {
-	user := ctx.MustGet("userinfo").(*token.MyCustomClaims)
-	userId := user.ID
+	// user := ctx.MustGet("userinfo").(*token.MyCustomClaims)
+	// userId := user.ID
 	var userTopUp entity.UserTopUp
-	userTopUp.User.Id = userId
+	//userTopUp.User.Id = userId
 
 	if err := ctx.ShouldBindJSON(&userTopUp); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

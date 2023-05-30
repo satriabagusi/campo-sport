@@ -43,6 +43,7 @@ func (u *userHandler) Me(c *gin.Context) {
 		PhoneNumber: user.PhoneNumber,
 		UserRole:    user.UserRole,
 		Detail:      result,
+		IsVerified:  user.IsVerified,
 	}
 
 	helper.Response(c, http.StatusOK, "OK", userResponse)

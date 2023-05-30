@@ -74,7 +74,7 @@ func (r *userRepository) FindUserByUsername(username string) (*res.GetUserByUser
 }
 func (r *userRepository) FindUserByUsernameLogin(username string) (*entity.User, error) {
 	var user entity.User
-	stmt, err := r.db.Prepare(`SELECT id, username , password, email, phone_number, role_id, is_verified, created_at, updated_at
+	stmt, err := r.db.Prepare(`SELECT id, username , password, email, phone_number,role_id, is_verified, created_at, updated_at
 	from users
 	WHERE username = $1 AND is_deleted = false;`)
 	if err != nil {
